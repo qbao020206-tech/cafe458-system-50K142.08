@@ -1,0 +1,91 @@
+# ==============================================================
+# BẢO MẬT BIẾN MÔI TRƯỜNG & KHÓA BÍ MẬT (QĐ-16)
+# ==============================================================
+# Chặn toàn bộ file .env ở thư mục gốc và các thư mục con
+.env
+.env.*
+*.env
+# Cho phép theo dõi file mẫu không chứa mật khẩu
+!.env.example
+
+# ==============================================================
+# PYTHON / BACK-END (FastAPI, SQLAlchemy, Pytest)
+# ==============================================================
+# Cache biên dịch Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Môi trường ảo (Virtual Environments)
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Thư viện cài đặt phân phối
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Báo cáo độ phủ
+.pytest_cache/
+.coverage
+htmlcov/
+nosetests.xml
+coverage.xml
+
+# ==============================================================
+# NODE.JS / FRONT-END (Vite, React, TypeScript)
+# ==============================================================
+# Thư viện phụ thuộc
+node_modules/
+.pnp
+.pnp.js
+
+# Build production của Vite
+dist/
+dist-ssr/
+
+# Log lỗi npm / yarn / pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test frontend
+coverage/
+.vitest/
+
+# ==============================================================
+# IDE, EDITOR VÀ HỆ ĐIỀU HÀNH
+# ==============================================================
+# Editor cấu hình cá nhân
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# File rác hệ điều hành Windows / macOS
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store
+
+
