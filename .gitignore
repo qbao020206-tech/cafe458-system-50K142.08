@@ -89,3 +89,5 @@ Thumbs.db
 .DS_Store
 
 
+# Không push .Antigravity/ lên GitHub để tránh lộ thông tin cá nhân
+.Antigravity/
