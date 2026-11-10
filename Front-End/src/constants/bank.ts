@@ -1,0 +1,6 @@
+export const BANK_CONFIG = {
+  BANK_NAME: "Vietcombank",
+  BANK_BIN: "970436",
+  BANK_ACCOUNT_NO: "1028456789",
+  BANK_ACCOUNT_NAME: "NGUYEN VAN A",
+};

@@ -25,13 +25,14 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1F2937] flex flex-col justify-between max-w-md mx-auto shadow-md relative font-sans">
-      <header className="bg-[#C22222] text-white px-4 py-4 flex items-center sticky top-0 z-30 shadow-sm">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#22201C] w-[390px] max-w-[390px] mx-auto relative flex flex-col font-['Be_Vietnam_Pro'] antialiased shadow-sm select-none">
+      {/* Thanh tiêu đề: cao 88px, px-4, py-5, màu nền #D1342C chuẩn Figma */}
+      <header className="bg-[#D1342C] text-white h-[88px] px-[16px] flex items-center sticky top-0 z-30 flex-shrink-0">
         {showBackButton && (
           <button
             type="button"
             onClick={handleBack}
-            className="mr-3 p-1.5 rounded-lg border border-white/60 hover:bg-white/10 active:scale-95 transition-transform"
+            className="w-[36px] h-[36px] rounded-[10px] border border-white flex items-center justify-center mr-3 active:scale-95 transition-transform flex-shrink-0 cursor-pointer"
             aria-label="Quay lại"
           >
             <svg
@@ -39,19 +40,23 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              strokeWidth="2.5"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                d="M19 12H5m7 7l-7-7 7-7"
               />
             </svg>
           </button>
         )}
-        <h1 className="text-xl font-bold tracking-wide">{title}</h1>
+        <h1 className="text-[24px] font-bold tracking-tight text-white leading-none">
+          {title}
+        </h1>
       </header>
-      <main className="flex-1 p-4 pb-28">{children}</main>
+
+      {/* Nội dung trang */}
+      <main className="flex-1 w-full pt-[20px] pb-6">{children}</main>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { useCart } from "../../contexts/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { MESSAGES } from "../../constants/messages";
-import { PaymentMethod, CartItem } from "../../types/order";
+import { CartItem } from "../../types/order";
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,7 +25,6 @@ export const CheckoutPage: React.FC = () => {
   const [step, setStep] = useState<"review" | "select_payment">("review");
   const [showZeroAlert, setShowZeroAlert] = useState<boolean>(false);
 
-  // QĐ-25: Nếu giỏ hàng rỗng khi vào Checkout hoặc khi giảm hết món, cảnh báo và điều hướng về Menu
   useEffect(() => {
     if (totalQuantity === 0) {
       setShowZeroAlert(true);
@@ -67,30 +66,31 @@ export const CheckoutPage: React.FC = () => {
 
   return (
     <CustomerLayout title="Thanh toán" showBackButton onBackClick={handleBack}>
-      <div className="pb-24">
-        <div className="text-[#C22222] font-bold text-lg mb-3">
+      <div className="px-[20px] pb-28">
+        {/* Nhãn bàn */}
+        <div className="text-[#D1342C] font-bold text-[20px] mb-[14px]">
           Bàn {tableNumber || "03"}
         </div>
 
         {step === "review" ? (
           <div className="space-y-4">
             <section>
-              <h2 className="text-base font-bold text-gray-900 mb-2">
+              <h2 className="text-[16px] font-bold text-[#22201C] mb-[12px]">
                 Đơn của bạn
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {items.map((item: CartItem) => (
                   <div
                     key={item.dish.ma_mon}
-                    className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex items-center justify-between"
+                    className="bg-white rounded-[14px] border border-[#E8E0D2] px-[14px] py-[12px] flex items-center justify-between text-[16px]"
                   >
-                    <div>
-                      <h3 className="font-bold text-sm text-gray-900">
+                    <div className="flex items-center">
+                      <span className="font-bold text-[15px] text-[#22201C] mr-3">
                         {item.dish.ten_mon}
-                      </h3>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      </span>
+                      <span className="text-[14px] text-[#666666]">
                         {formatCurrency(item.dish.gia_ban)}
-                      </p>
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -98,12 +98,12 @@ export const CheckoutPage: React.FC = () => {
                         onClick={() =>
                           updateQuantity(item.dish.ma_mon, item.quantity - 1)
                         }
-                        className="w-7 h-7 rounded-full border border-gray-400 text-gray-700 flex items-center justify-center font-bold active:scale-95 transition-transform"
+                        className="w-8 h-8 rounded-full border border-[#2F5D50] text-[#2F5D50] flex items-center justify-center font-normal text-lg active:scale-95 transition-transform bg-transparent cursor-pointer"
                         aria-label="Giảm số lượng"
                       >
                         −
                       </button>
-                      <span className="text-sm font-bold w-4 text-center">
+                      <span className="text-[15px] font-bold text-[#22201C] w-5 text-center">
                         {item.quantity}
                       </span>
                       <button
@@ -111,7 +111,7 @@ export const CheckoutPage: React.FC = () => {
                         onClick={() =>
                           updateQuantity(item.dish.ma_mon, item.quantity + 1)
                         }
-                        className="w-7 h-7 rounded-full bg-[#235D4B] text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
+                        className="w-8 h-8 rounded-full bg-[#2F5D50] text-white flex items-center justify-center font-normal text-lg active:scale-95 transition-transform cursor-pointer"
                         aria-label="Tăng số lượng"
                       >
                         +
@@ -123,16 +123,15 @@ export const CheckoutPage: React.FC = () => {
             </section>
 
             <section>
-              <label
-                htmlFor="order-note"
-                className="block text-sm font-bold text-gray-900 mb-1"
-              >
-                Ghi chú{" "}
-                <span className="font-normal text-gray-500">
+              <div className="mb-2">
+                <span className="text-[16px] font-bold text-[#22201C]">
+                  Ghi chú
+                </span>
+                <span className="text-[14px] font-normal text-[#666666] ml-1.5">
                   (không bắt buộc)
                 </span>
-              </label>
-              <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+              </div>
+              <div className="bg-white rounded-[14px] border border-[#E8E0D2] p-[14px]">
                 <textarea
                   id="order-note"
                   rows={3}
@@ -140,9 +139,9 @@ export const CheckoutPage: React.FC = () => {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={MESSAGES.NOTE_PLACEHOLDER}
-                  className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent"
+                  className="w-full text-[14px] text-[#22201C] placeholder-[#999999] focus:outline-none resize-none bg-transparent"
                 />
-                <div className="text-right text-xs text-gray-400 mt-1">
+                <div className="text-right text-[12px] text-[#999999] mt-1">
                   {note.length}/200
                 </div>
               </div>
@@ -151,34 +150,27 @@ export const CheckoutPage: React.FC = () => {
         ) : (
           <div className="space-y-4">
             <section>
-              <h2 className="text-base font-bold text-gray-900 mb-2">
+              <h2 className="text-[16px] font-bold text-[#22201C] mb-[12px]">
                 Đơn của bạn
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {items.map((item: CartItem) => (
                   <div
                     key={item.dish.ma_mon}
-                    className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex items-center justify-between text-sm"
+                    className="bg-white rounded-[14px] border border-[#E8E0D2] px-[14px] py-[12px] flex justify-between items-center text-[16px]"
                   >
-                    <span className="font-medium text-gray-900">
+                    <span className="font-normal text-[#22201C]">
                       {item.dish.ten_mon} x{item.quantity}
                     </span>
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-[#22201C]">
                       {formatCurrency(item.dish.gia_ban * item.quantity)}
                     </span>
                   </div>
                 ))}
 
-                {note.trim() && (
-                  <div className="bg-amber-50/60 rounded-xl p-2.5 border border-amber-200/50 text-xs text-gray-700">
-                    <span className="font-semibold text-gray-900">Ghi chú:</span>{" "}
-                    {note}
-                  </div>
-                )}
-
-                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-900">Tổng tiền</span>
-                  <span className="font-bold text-[#C22222]">
+                <div className="bg-white rounded-[14px] border border-[#E8E0D2] px-[14px] py-[12px] flex justify-between items-center text-[16px]">
+                  <span className="font-normal text-[#22201C]">Tổng tiền</span>
+                  <span className="font-bold text-[#D1342C]">
                     {formatCurrency(totalAmount)}
                   </span>
                 </div>
@@ -186,62 +178,46 @@ export const CheckoutPage: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-base font-bold text-gray-900 mb-2">
+              <h2 className="text-[16px] font-bold text-[#22201C] mt-5 mb-[12px]">
                 Phương thức thanh toán
               </h2>
               <div className="space-y-2.5">
                 <div
                   onClick={() => setPaymentMethod("Chuyển khoản")}
-                  className={`bg-white rounded-xl p-3.5 shadow-sm border flex items-center space-x-3 cursor-pointer transition-all ${
-                    paymentMethod === "Chuyển khoản"
-                      ? "border-[#235D4B] ring-1 ring-[#235D4B]"
-                      : "border-gray-100"
-                  }`}
+                  className="bg-white rounded-[14px] border border-[#E8E0D2] p-[14px] flex items-center space-x-3 cursor-pointer transition-all"
                 >
-                  <input
-                    type="radio"
-                    id="pay-transfer"
-                    name="payment_method"
-                    value="Chuyển khoản"
-                    checked={paymentMethod === "Chuyển khoản"}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value as PaymentMethod)
-                    }
-                    className="w-4 h-4 text-[#235D4B] focus:ring-[#235D4B]"
-                  />
-                  <label htmlFor="pay-transfer" className="cursor-pointer">
-                    <p className="font-bold text-sm text-gray-900">
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center flex-shrink-0">
+                    {paymentMethod === "Chuyển khoản" && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#2F5D50]" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[15px] text-[#22201C]">
                       Chuyển khoản
                     </p>
-                    <p className="text-xs text-gray-500">Quét mã QR ngân hàng</p>
-                  </label>
+                    <p className="text-[13px] text-[#666666] mt-0.5">
+                      Quét mã QR ngân hàng
+                    </p>
+                  </div>
                 </div>
 
                 <div
                   onClick={() => setPaymentMethod("Tiền mặt")}
-                  className={`bg-white rounded-xl p-3.5 shadow-sm border flex items-center space-x-3 cursor-pointer transition-all ${
-                    paymentMethod === "Tiền mặt"
-                      ? "border-[#235D4B] ring-1 ring-[#235D4B]"
-                      : "border-gray-100"
-                  }`}
+                  className="bg-white rounded-[14px] border border-[#E8E0D2] p-[14px] flex items-center space-x-3 cursor-pointer transition-all"
                 >
-                  <input
-                    type="radio"
-                    id="pay-cash"
-                    name="payment_method"
-                    value="Tiền mặt"
-                    checked={paymentMethod === "Tiền mặt"}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value as PaymentMethod)
-                    }
-                    className="w-4 h-4 text-[#235D4B] focus:ring-[#235D4B]"
-                  />
-                  <label htmlFor="pay-cash" className="cursor-pointer">
-                    <p className="font-bold text-sm text-gray-900">Tiền mặt</p>
-                    <p className="text-xs text-gray-500">
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center flex-shrink-0">
+                    {paymentMethod === "Tiền mặt" && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#2F5D50]" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[15px] text-[#22201C]">
+                      Tiền mặt
+                    </p>
+                    <p className="text-[13px] text-[#666666] mt-0.5">
                       Trả tiền khi nhận món tại bàn
                     </p>
-                  </label>
+                  </div>
                 </div>
               </div>
             </section>
@@ -249,19 +225,20 @@ export const CheckoutPage: React.FC = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between z-40 shadow-lg">
+      {/* Thanh giỏ hàng / Tiếp tục ở đáy */}
+      <div className="fixed bottom-0 left-0 right-0 max-w-[390px] h-[84px] mx-auto bg-white border-t border-[#E8E0D2] px-[20px] flex items-center justify-between z-40 shadow-sm">
         <div>
-          <p className="text-xs text-gray-500 font-medium">
+          <span className="text-[13px] text-[#666666] block leading-tight">
             {totalQuantity} món
-          </p>
-          <p className="text-lg font-bold text-[#C22222]">
+          </span>
+          <span className="text-[20px] font-bold text-[#D1342C] block leading-tight mt-0.5">
             {formatCurrency(totalAmount)}
-          </p>
+          </span>
         </div>
         <button
           type="button"
           onClick={handleNextStep}
-          className="bg-[#235D4B] hover:bg-[#1B4739] text-white font-bold px-6 py-2.5 rounded-lg active:scale-95 transition-all text-sm tracking-wide shadow-sm"
+          className="bg-[#2F5D50] hover:bg-[#254b40] text-white font-bold h-[48px] px-[24px] rounded-[14px] text-[16px] active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
         >
           Tiếp tục
         </button>

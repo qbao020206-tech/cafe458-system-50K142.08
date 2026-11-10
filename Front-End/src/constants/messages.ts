@@ -9,9 +9,10 @@ export const MESSAGES = {
   NOTE_PLACEHOLDER: "Ví dụ: ít đá, không đường…",
 
   // Thanh toán (UC 7.2)
-  TRANSFER_REMINDER:
-    "Sau khi chuyển khoản, nhấn Hoàn tất. Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết",
+  TRANSFER_REMINDER_LINE1: "Sau khi chuyển khoản, nhấn Hoàn tất",
+  TRANSFER_REMINDER_LINE2:
+    "Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết",
   CASH_REMINDER: "Chờ thu tiền sau khi bưng nước ra",
   ORDER_SUCCESS: "Đặt món thành công",
-  ORDER_FAILED: "Đặt món không thành công, vui lòng thử lại!",
+  ORDER_FAILED: "Đặt món không thành công,\nvui lòng thử lại!",
 } as const;
