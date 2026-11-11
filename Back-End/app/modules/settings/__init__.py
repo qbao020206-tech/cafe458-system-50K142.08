@@ -1,0 +1,1 @@
+"""Owner-managed shop settings."""
