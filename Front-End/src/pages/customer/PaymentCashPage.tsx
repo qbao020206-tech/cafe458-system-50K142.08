@@ -61,43 +61,46 @@ export const PaymentCashPage: React.FC = () => {
 
   return (
     <CustomerLayout
-      title="Thanh toán"
-      showBackButton
+      title={successModalOpen ? "Menu" : "Thanh toán"}
+      showBackButton={!successModalOpen}
       onBackClick={() => navigate("/checkout")}
     >
-      <div className="px-[20px] pb-8 space-y-4">
-        {/* Nhãn bàn */}
-        <p className="font-bold text-[#D1342C] text-[20px]">
-          Bàn {effectiveTable} · Tiền mặt
-        </p>
-
-        {/* Ô số liệu tổng tiền */}
-        <div className="bg-white border border-[#E8E0D2] flex items-center justify-between px-[14px] py-[12px] rounded-[14px] text-[#22201C] text-[16px]">
-          <p className="font-normal">Tổng tiền</p>
-          <p className="font-bold">{formatCurrency(totalAmount)}</p>
-        </div>
-
-        {/* Thông báo lưu ý */}
-        <div className="bg-[#FBEBD3] flex flex-col items-center justify-center p-[16px] rounded-[12px]">
-          <p className="font-bold text-[#5C3A0E] text-[16px] text-center w-full">
-            Chờ thu tiền sau khi bưng nước ra
+      {/* Khi mở modal thành công hoặc lỗi, ẩn toàn bộ nội dung phía sau để trống trơn 100% khớp Figma */}
+      {!successModalOpen && !errorModalOpen && (
+        <div className="px-[20px] pb-8 space-y-4">
+          {/* Nhãn bàn */}
+          <p className="font-bold text-[#D1342C] text-[20px]">
+            Bàn {effectiveTable} · Tiền mặt
           </p>
-        </div>
 
-        {/* Nút Hoàn tất */}
-        <button
-          type="button"
-          onClick={handleComplete}
-          disabled={loading || totalQuantity === 0}
-          className="w-full bg-[#2F5D50] hover:bg-[#254b40] disabled:opacity-50 text-white font-bold h-[48px] px-[24px] py-[14px] rounded-[14px] text-[16px] active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
-        >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <span>Hoàn tất</span>
-          )}
-        </button>
-      </div>
+          {/* Ô số liệu tổng tiền */}
+          <div className="bg-white border border-[#E8E0D2] flex items-center justify-between px-[14px] py-[12px] rounded-[14px] text-[#22201C] text-[16px]">
+            <p className="font-normal">Tổng tiền</p>
+            <p className="font-bold">{formatCurrency(totalAmount)}</p>
+          </div>
+
+          {/* Thông báo lưu ý */}
+          <div className="bg-[#FBEBD3] flex flex-col items-center justify-center p-[16px] rounded-[12px]">
+            <p className="font-bold text-[#5C3A0E] text-[16px] text-center w-full">
+              Chờ thu tiền sau khi bưng nước ra
+            </p>
+          </div>
+
+          {/* Nút Hoàn tất */}
+          <button
+            type="button"
+            onClick={handleComplete}
+            disabled={loading || totalQuantity === 0}
+            className="w-full bg-[#2F5D50] hover:bg-[#254b40] disabled:opacity-50 text-white font-bold h-[48px] px-[24px] py-[14px] rounded-[14px] text-[16px] active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <span>Hoàn tất</span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Modal Đặt món thành công */}
       <ModalConfirm

@@ -152,62 +152,64 @@ export const TableDetailPage: React.FC = () => {
         </div>
 
         {/* Khung thông tin bàn chuẩn Figma */}
-        <div className="bg-white border border-black rounded-2xl p-6 shadow-sm mt-12">
-          {/* Hàng thông tin bàn và các nút tác vụ */}
-          <div className="flex items-start justify-between">
-            {/* Tên bàn */}
-            <span className="font-bold text-[18px] text-[#1D4ED8] pt-1">
-              Bàn {table.id}
-            </span>
+        {!feedbackModal.isOpen && (
+          <div className="bg-white border border-black rounded-2xl p-6 shadow-sm mt-12">
+            {/* Hàng thông tin bàn và các nút tác vụ */}
+            <div className="flex items-start justify-between">
+              {/* Tên bàn */}
+              <span className="font-bold text-[18px] text-[#1D4ED8] pt-1">
+                Bàn {table.id}
+              </span>
 
-            {/* Trạng thái và nút Xóa bàn */}
-            <div className="flex flex-col items-end space-y-3">
-              {isServing ? (
-                /* Bàn đang phục vụ: nhãn vàng */
-                <span className="px-4 py-1.5 rounded-full text-[14px] font-semibold bg-[#FDE8AD] border border-[#F59E0B]/60 text-[#92400E]">
-                  Đang phục vụ
-                </span>
-              ) : (
-                /* Bàn trống: nhãn xanh dương */
-                <span className="px-5 py-1.5 rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8]">
-                  Trống
-                </span>
-              )}
+              {/* Trạng thái và nút Xóa bàn */}
+              <div className="flex flex-col items-end space-y-3">
+                {isServing ? (
+                  /* Bàn đang phục vụ: nhãn vàng */
+                  <span className="px-4 py-1.5 rounded-full text-[14px] font-semibold bg-[#FDE8AD] border border-[#F59E0B]/60 text-[#92400E]">
+                    Đang phục vụ
+                  </span>
+                ) : (
+                  /* Bàn trống: nhãn xanh dương */
+                  <span className="px-5 py-1.5 rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8]">
+                    Trống
+                  </span>
+                )}
 
-              {/* Nút Xóa bàn */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (isServing) {
-                    setFeedbackModal({
-                      isOpen: true,
-                      type: "error",
-                      message: "Chỉ được xóa bàn ở trạng thái Trống!",
-                    });
-                  } else {
-                    setIsDeleteDialogOpen(true);
-                  }
-                }}
-                className="px-5 py-2 rounded-[14px] bg-[#8A2424] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
-              >
-                Xóa bàn
-              </button>
+                {/* Nút Xóa bàn */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isServing) {
+                      setFeedbackModal({
+                        isOpen: true,
+                        type: "error",
+                        message: "Chỉ được xóa bàn ở trạng thái Trống!",
+                      });
+                    } else {
+                      setIsDeleteDialogOpen(true);
+                    }
+                  }}
+                  className="px-5 py-2 rounded-[14px] bg-[#8A2424] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+                >
+                  Xóa bàn
+                </button>
+              </div>
             </div>
+
+            {/* Nút Xác nhận bàn trống (chỉ hiện khi bàn Đang phục vụ - UC 4.4) */}
+            {isServing && (
+              <div className="flex justify-center mt-6">
+                <button
+                  type="button"
+                  onClick={handleConfirmEmpty}
+                  className="px-7 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm"
+                >
+                  Xác nhận bàn trống
+                </button>
+              </div>
+            )}
           </div>
-
-          {/* Nút Xác nhận bàn trống (chỉ hiện khi bàn Đang phục vụ - UC 4.4) */}
-          {isServing && (
-            <div className="flex justify-center mt-6">
-              <button
-                type="button"
-                onClick={handleConfirmEmpty}
-                className="px-7 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm"
-              >
-                Xác nhận bàn trống
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Modal xác nhận xóa bàn chuẩn UC 4.3 */}

@@ -54,7 +54,7 @@ export const RevenueDetailPage: React.FC = () => {
       }
     >
       <div className="px-[16px] pt-4 pb-8">
-        {loading || !detail ? (
+        {errorMessage ? null : loading || !detail ? (
           <div className="py-24 text-center text-[#666666] text-[14px]">
             Đang tải chi tiết doanh thu...
           </div>

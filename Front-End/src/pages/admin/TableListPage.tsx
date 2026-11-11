@@ -58,7 +58,7 @@ export const TableListPage: React.FC = () => {
           <div className="py-24 text-center text-[#666666] text-[14px]">
             Đang tải sơ đồ bàn...
           </div>
-        ) : tables.length === 0 ? (
+        ) : errorMessage ? null : tables.length === 0 ? (
           /* Màn hình rỗng chuẩn UC 4.1 - Chưa có bàn */
           <div className="flex flex-col items-center justify-center pt-24 text-center">
             <EmptyClipboardIcon className="w-14 h-16 text-[#666666] mb-3" />

@@ -122,7 +122,7 @@ export const MenuListPage: React.FC = () => {
           <div className="py-24 text-center text-[#666666] text-[14px]">
             Đang tải danh sách món...
           </div>
-        ) : dishes.length === 0 ? (
+        ) : feedbackModal.isOpen && feedbackModal.type === "error" && dishes.length === 0 ? null : dishes.length === 0 ? (
           /* Màn hình rỗng chuẩn UC 3.1 - Menu chưa có món */
           <div className="flex flex-col items-center justify-center pt-24 text-center">
             <CoffeeCupIcon className="w-12 h-14 text-[#666666] mb-3" />

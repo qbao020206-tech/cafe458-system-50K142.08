@@ -67,77 +67,80 @@ export const PaymentTransferPage: React.FC = () => {
 
   return (
     <CustomerLayout
-      title="Thanh toán"
-      showBackButton
+      title={successModalOpen ? "Menu" : "Thanh toán"}
+      showBackButton={!successModalOpen}
       onBackClick={() => navigate("/checkout")}
     >
-      <div className="px-[20px] pb-8">
-        {/* Nhãn bàn */}
-        <p className="font-bold text-[#D1342C] text-[20px] mb-[14px]">
-          Bàn {effectiveTable} · Chuyển khoản
-        </p>
+      {/* Khi mở modal thành công hoặc lỗi, ẩn toàn bộ nội dung phía sau để trống trơn 100% khớp Figma */}
+      {!successModalOpen && !errorModalOpen && (
+        <div className="px-[20px] pb-8">
+          {/* Nhãn bàn */}
+          <p className="font-bold text-[#D1342C] text-[20px] mb-[14px]">
+            Bàn {effectiveTable} · Chuyển khoản
+          </p>
 
-        {/* Khung thanh toán chuyển khoản chuẩn Figma */}
-        <div className="bg-white rounded-[14px] border border-[#E8E0D2] p-5 shadow-sm flex flex-col items-center">
-          <h2 className="font-bold text-[16px] text-[#22201C] mb-3">
-            Quét mã QR để chuyển khoản
-          </h2>
+          {/* Khung thanh toán chuyển khoản chuẩn Figma */}
+          <div className="bg-white rounded-[14px] border border-[#E8E0D2] p-5 shadow-sm flex flex-col items-center">
+            <h2 className="font-bold text-[16px] text-[#22201C] mb-3">
+              Quét mã QR để chuyển khoản
+            </h2>
 
-          <div className="w-[180px] h-[180px] flex items-center justify-center mb-1">
-            <img
-              src={qrUrl}
-              alt="Mã QR Chuyển khoản"
-              className="w-full h-full object-contain"
-            />
+            <div className="w-[180px] h-[180px] flex items-center justify-center mb-1">
+              <img
+                src={qrUrl}
+                alt="Mã QR Chuyển khoản"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="text-[26px] font-bold text-[#D1342C] my-2">
+              {formatCurrency(totalAmount)}
+            </div>
+
+            <div className="w-full space-y-2 text-[14px] text-[#666666] pt-1">
+              <div className="flex justify-between items-center">
+                <span>Ngân hàng</span>
+                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_NAME}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span>Số tài khoản</span>
+                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NO}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span>Chủ tài khoản</span>
+                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NAME}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span>Nội dung</span>
+                <span className="font-bold text-[#22201C]">{transferContent}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="text-[26px] font-bold text-[#D1342C] my-2">
-            {formatCurrency(totalAmount)}
-          </div>
+          {/* Nút Hoàn tất */}
+          <button
+            type="button"
+            onClick={handleComplete}
+            disabled={loading || totalQuantity === 0}
+            className="w-full bg-[#2F5D50] hover:bg-[#254b40] disabled:opacity-50 text-white font-bold h-[48px] px-[24px] rounded-[14px] text-[16px] mt-4 mb-2 active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <span>Hoàn tất</span>
+            )}
+          </button>
 
-          <div className="w-full space-y-2 text-[14px] text-[#666666] pt-1">
-            <div className="flex justify-between items-center">
-              <span>Ngân hàng</span>
-              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_NAME}</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span>Số tài khoản</span>
-              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NO}</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span>Chủ tài khoản</span>
-              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NAME}</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span>Nội dung</span>
-              <span className="font-bold text-[#22201C]">{transferContent}</span>
-            </div>
+          {/* Lời nhắc chụp lại giao dịch */}
+          <div className="text-[13px] text-[#666666] text-center leading-relaxed">
+            <p>Sau khi chuyển khoản, nhấn Hoàn tất</p>
+            <p>Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết</p>
           </div>
         </div>
-
-        {/* Nút Hoàn tất */}
-        <button
-          type="button"
-          onClick={handleComplete}
-          disabled={loading || totalQuantity === 0}
-          className="w-full bg-[#2F5D50] hover:bg-[#254b40] disabled:opacity-50 text-white font-bold h-[48px] px-[24px] rounded-[14px] text-[16px] mt-4 mb-2 active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
-        >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <span>Hoàn tất</span>
-          )}
-        </button>
-
-        {/* Lời nhắc chụp lại giao dịch */}
-        <div className="text-[13px] text-[#666666] text-center leading-relaxed">
-          <p>Sau khi chuyển khoản, nhấn Hoàn tất</p>
-          <p>Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết</p>
-        </div>
-      </div>
+      )}
 
       {/* Modal Đặt món thành công */}
       <ModalConfirm

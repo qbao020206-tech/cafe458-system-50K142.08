@@ -18,10 +18,12 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 cursor-pointer"
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 ${
+        onClose ? "cursor-pointer" : ""
+      }`}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClose ? onClose : (e) => e.stopPropagation()}
         className="bg-white w-[280px] max-w-[85%] rounded-2xl p-6 shadow-2xl border border-black flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-150"
       >
         {type === "success" ? (
@@ -42,29 +44,27 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
           </div>
         ) : (
           <svg
-            className="w-12 h-16 text-[#D1342C] mb-4"
-            viewBox="0 0 46 64"
+            className="w-12 h-14 text-[#D1342C] mb-4"
+            viewBox="0 0 40 48"
             fill="none"
           >
-            <rect
-              x="2"
-              y="2"
-              width="42"
-              height="60"
-              rx="21"
+            <path
+              d="M5 6a3 3 0 0 1 3-3h24a3 3 0 0 1 3 3v16c0 13-15 22-15 22S5 35 5 22V6z"
               stroke="#D1342C"
-              strokeWidth="3.2"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <line
-              x1="23"
-              y1="16"
-              x2="23"
-              y2="36"
+              x1="20"
+              y1="13"
+              x2="20"
+              y2="25"
               stroke="#D1342C"
-              strokeWidth="3.5"
+              strokeWidth="3.2"
               strokeLinecap="round"
             />
-            <circle cx="23" cy="47" r="2.5" fill="#D1342C" />
+            <circle cx="20" cy="33" r="2.2" fill="#D1342C" />
           </svg>
         )}
 
