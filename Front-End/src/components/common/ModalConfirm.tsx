@@ -42,17 +42,29 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
           </div>
         ) : (
           <svg
-            className="w-12 h-14 text-[#D32F2F] mb-4"
-            viewBox="0 0 40 48"
+            className="w-12 h-16 text-[#D1342C] mb-4"
+            viewBox="0 0 46 64"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <path d="M4 6a3 3 0 0 1 3-3h26a3 3 0 0 1 3 3v18c0 12-16 20-16 20S4 36 4 24V6z" />
-            <line x1="20" y1="13" x2="20" y2="24" strokeWidth="2.8" />
-            <circle cx="20" cy="31" r="1.6" fill="currentColor" stroke="none" />
+            <rect
+              x="2"
+              y="2"
+              width="42"
+              height="60"
+              rx="21"
+              stroke="#D1342C"
+              strokeWidth="3.2"
+            />
+            <line
+              x1="23"
+              y1="16"
+              x2="23"
+              y2="36"
+              stroke="#D1342C"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+            <circle cx="23" cy="47" r="2.5" fill="#D1342C" />
           </svg>
         )}
 

@@ -193,3 +193,66 @@ export const getUnconfirmedCountSync = (): number => {
     (order) => order.status === "Chưa xác nhận thanh toán" && !order.isDeleted
   ).length;
 };
+
+export const addCustomerOrder = (orderData: {
+  tableNumber: string;
+  items: { ma_mon: number; so_luong: number }[];
+  paymentMethod: "Chuyển khoản" | "Tiền mặt";
+  note?: string | null;
+}): AdminOrder => {
+  const allOrders = loadOrdersFromStorage();
+  const now = new Date();
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const newId = (allOrders.length + 101).toString().padStart(4, "0");
+
+  let dishMap: Record<number, { name: string; price: number }> = {
+    1: { name: "Bạc xỉu", price: 30000 },
+    2: { name: "Cà phê sữa", price: 25000 },
+    3: { name: "Cà phê đen", price: 20000 },
+    4: { name: "Trà đào cam sả", price: 35000 },
+    5: { name: "Nước ép cam", price: 30000 },
+    6: { name: "Sữa chua đá", price: 25000 },
+  };
+
+  try {
+    const rawMenu = sessionStorage.getItem("cafe458_admin_menu");
+    if (rawMenu) {
+      const parsedMenu = JSON.parse(rawMenu);
+      parsedMenu.forEach((d: any) => {
+        dishMap[d.ma_mon] = { name: d.ten_mon, price: d.gia_ban };
+      });
+    }
+  } catch {}
+
+  const orderItems = orderData.items.map((i) => {
+    const dish = dishMap[i.ma_mon] || {
+      name: `Món #${i.ma_mon}`,
+      price: 30000,
+    };
+    return {
+      name: dish.name,
+      price: dish.price,
+      quantity: i.so_luong,
+      total: dish.price * i.so_luong,
+    };
+  });
+
+  const total = orderItems.reduce((sum, item) => sum + item.total, 0);
+
+  const newOrder: AdminOrder = {
+    id: newId,
+    tableNumber: orderData.tableNumber.padStart(2, "0"),
+    date: "31/10/2026", // Khớp ngày xem mặc định trong flow quản lý đơn
+    time: timeStr,
+    status: "Chưa xác nhận thanh toán",
+    items: orderItems,
+    total: total || 60000,
+    paymentMethod: orderData.paymentMethod,
+    note: orderData.note || "",
+  };
+
+  const updatedOrders = [newOrder, ...allOrders];
+  saveOrdersToStorage(updatedOrders);
+  return newOrder;
+};

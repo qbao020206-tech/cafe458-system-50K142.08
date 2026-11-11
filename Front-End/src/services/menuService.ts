@@ -91,7 +91,29 @@ export const getMenuByQr = async (
     }
     // Nếu Back-End chưa chạy (offline/network error) và không phải cố tình test mã sai, trả mock
     if (!error.response && qrToken !== "invalid") {
-      return MOCK_MENU_DATA;
+      const match = qrToken.match(/\d+/);
+      const tableNum = match ? match[0].padStart(2, "0") : "03";
+
+      let tatCaMon = MOCK_MENU_DATA.tat_ca_mon;
+      try {
+        const stored = sessionStorage.getItem("cafe458_admin_menu");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const activeDishes = parsed.filter(
+            (d: any) => !d.da_xoa && d.trang_thai === "Hiển thị"
+          );
+          if (activeDishes.length > 0) {
+            tatCaMon = activeDishes;
+          }
+        }
+      } catch {}
+
+      return {
+        ...MOCK_MENU_DATA,
+        so_ban: tableNum,
+        ma_ban: parseInt(tableNum, 10) || 3,
+        tat_ca_mon: tatCaMon,
+      };
     }
     throw error;
   }

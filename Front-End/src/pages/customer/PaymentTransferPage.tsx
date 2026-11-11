@@ -5,6 +5,7 @@ import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { useCart } from "../../contexts/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { createOrder } from "../../services/orderService";
+import { BANK_CONFIG } from "../../constants/bank";
 
 export const PaymentTransferPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,10 +31,10 @@ export const PaymentTransferPage: React.FC = () => {
 
   const effectiveTable = tableNumber || "03";
   const transferContent = `Bàn ${effectiveTable}`;
-  // Sinh mã QR chuyển khoản VietQR chuẩn
-  const qrUrl = `https://img.vietqr.io/image/970436-0123456789-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(
+  // Sinh mã QR chuyển khoản VietQR chuẩn từ thông tin tài khoản ngân hàng của quán
+  const qrUrl = `https://img.vietqr.io/image/${BANK_CONFIG.BANK_BIN}-${BANK_CONFIG.BANK_ACCOUNT_NO}-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(
     transferContent,
-  )}&accountName=${encodeURIComponent("NGUYEN VAN A")}`;
+  )}&accountName=${encodeURIComponent(BANK_CONFIG.BANK_ACCOUNT_NAME)}`;
 
   const handleComplete = async () => {
     if (totalQuantity === 0) return;
@@ -97,17 +98,17 @@ export const PaymentTransferPage: React.FC = () => {
           <div className="w-full space-y-2 text-[14px] text-[#666666] pt-1">
             <div className="flex justify-between items-center">
               <span>Ngân hàng</span>
-              <span className="font-bold text-[#22201C]">Vietcombank</span>
+              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_NAME}</span>
             </div>
 
             <div className="flex justify-between items-center">
               <span>Số tài khoản</span>
-              <span className="font-bold text-[#22201C]">0123 456 789</span>
+              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NO}</span>
             </div>
 
             <div className="flex justify-between items-center">
               <span>Chủ tài khoản</span>
-              <span className="font-bold text-[#22201C]">NGUYEN VAN A</span>
+              <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NAME}</span>
             </div>
 
             <div className="flex justify-between items-center">

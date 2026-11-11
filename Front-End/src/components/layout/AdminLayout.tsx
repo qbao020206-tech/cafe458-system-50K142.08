@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getUnconfirmedOrdersCount } from "../../services/authService";
+import { ModalActionDialog } from "../common/ModalActionDialog";
+import { ModalConfirm } from "../common/ModalConfirm";
 
 interface AdminLayoutProps {
   title: string;
@@ -26,6 +28,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [unconfirmedCount, setUnconfirmedCount] = useState<number>(2);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
+  const [logoutErrorModal, setLogoutErrorModal] = useState<boolean>(false);
 
   // Polling số đơn mới mỗi 5 giây theo [QĐ-05]
   useEffect(() => {
@@ -55,14 +59,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleConfirmLogout = () => {
+    try {
+      setShowLogoutConfirm(false);
+      logout();
+      navigate("/login");
+    } catch {
+      setShowLogoutConfirm(false);
+      setLogoutErrorModal(true);
+    }
   };
 
   // Xác định tab nào đang active
   const pathname = location.pathname;
-  const isHomeActive = pathname === "/admin" || pathname === "/admin/";
+  const isHomeActive =
+    pathname === "/admin" ||
+    pathname === "/admin/" ||
+    pathname === "/admin/change-password";
   const isOrdersActive = pathname.startsWith("/admin/orders");
   const isMenuActive = pathname.startsWith("/admin/menu");
   const isTablesActive = pathname.startsWith("/admin/tables");
@@ -137,30 +150,58 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             C
           </button>
 
-          {/* Dropdown Menu tài khoản: Đổi mật khẩu & Đăng xuất */}
+          {/* Dropdown Menu tài khoản: Đổi mật khẩu & Đăng xuất (UC 8 - Bảng 128) */}
           {menuOpen && (
             <>
               <div
                 className="fixed inset-0 z-40"
                 onClick={() => setMenuOpen(false)}
               />
-              <div className="absolute right-0 top-[52px] w-[170px] bg-white rounded-[14px] shadow-xl border border-[#E8E0D2] py-1.5 z-50 text-[14px]">
+              <div className="absolute right-0 top-[52px] w-[176px] bg-white rounded-[16px] shadow-lg border border-[#E8E0D2]/60 py-2 px-2 z-50 text-[14px]">
                 <button
                   type="button"
                   onClick={() => {
                     setMenuOpen(false);
                     navigate("/admin/change-password");
                   }}
-                  className="w-full text-left px-4 py-2.5 hover:bg-[#FAF6EE] text-[#22201C] font-medium flex items-center space-x-2"
+                  className="w-full text-left px-3 py-2.5 rounded-[10px] hover:bg-[#FAF6EE] text-[#333333] font-medium flex items-center space-x-3 cursor-pointer transition-colors"
                 >
+                  <svg
+                    className="w-[18px] h-[18px] text-[#4A4A4A] flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 7a4 4 0 10-5.657 5.657l-6.343 6.343h3v3h3v-3h2l1.657-1.657A4 4 0 0015 7z"
+                    />
+                  </svg>
                   <span>Đổi mật khẩu</span>
                 </button>
-                <div className="h-[1px] bg-[#E8E0D2] my-1" />
                 <button
                   type="button"
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2.5 hover:bg-red-50 text-[#D1342C] font-medium flex items-center space-x-2"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setShowLogoutConfirm(true);
+                  }}
+                  className="w-full text-left px-3 py-2.5 rounded-[10px] hover:bg-[#FAF6EE] text-[#333333] font-medium flex items-center space-x-3 cursor-pointer transition-colors"
                 >
+                  <svg
+                    className="w-[18px] h-[18px] text-[#4A4A4A] flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
                   <span>Đăng xuất</span>
                 </button>
               </div>
@@ -311,6 +352,24 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           <span className="text-[11px] font-medium leading-none">Doanh thu</span>
         </button>
       </nav>
+
+      {/* Hộp thoại xác nhận đăng xuất (UC 8 - Bảng 129) */}
+      <ModalActionDialog
+        isOpen={showLogoutConfirm}
+        question="Bạn có muốn đăng xuất không?"
+        cancelText="Không"
+        confirmText="Có"
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={handleConfirmLogout}
+      />
+
+      {/* Popup lỗi đăng xuất không thành công (UC 8 - Bảng 131) */}
+      <ModalConfirm
+        isOpen={logoutErrorModal}
+        type="error"
+        message="Có lỗi xảy ra, vui lòng thử lại!"
+        onClose={() => setLogoutErrorModal(false)}
+      />
     </div>
   );
 };

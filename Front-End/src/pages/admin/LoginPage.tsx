@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [username, setUsername] = useState<string>("");
@@ -18,6 +19,14 @@ export const LoginPage: React.FC = () => {
 
   // Trạng thái popup lỗi đăng nhập sai (Bảng 53)
   const [loginFailedModal, setLoginFailedModal] = useState<boolean>(false);
+
+  // Trạng thái popup thành công khi chuyển từ Đổi mật khẩu sang (Bảng 127)
+  const [successModalMessage, setSuccessModalMessage] = useState<string | null>(
+    () => {
+      const state = location.state as { successMessage?: string } | null;
+      return state?.successMessage || null;
+    },
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,6 +196,17 @@ export const LoginPage: React.FC = () => {
         type="error"
         message="Đăng nhập không thành công!"
         onClose={() => setLoginFailedModal(false)}
+      />
+
+      {/* Popup thông báo thành công (ví dụ: Đổi mật khẩu thành công - Bảng 127) */}
+      <ModalConfirm
+        isOpen={!!successModalMessage}
+        type="success"
+        message={successModalMessage}
+        onClose={() => {
+          setSuccessModalMessage(null);
+          window.history.replaceState({}, document.title);
+        }}
       />
     </div>
   );
