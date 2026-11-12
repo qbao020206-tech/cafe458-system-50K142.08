@@ -1,5 +1,11 @@
 import asyncio
 from logging.config import fileConfig
+import os
+from pathlib import Path
+import sys
+
+# Ensure Back-End root is in sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from alembic import context
 from sqlalchemy import pool

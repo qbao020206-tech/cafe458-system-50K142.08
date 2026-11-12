@@ -5,7 +5,8 @@ WORKDIR /app
 ENV TZ=Asia/Ho_Chi_Minh \
     DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends tzdata && \
