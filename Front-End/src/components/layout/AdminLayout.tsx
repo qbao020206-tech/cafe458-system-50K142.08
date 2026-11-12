@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { getUnconfirmedOrdersCount } from "../../services/authService";
+import { getUnreadOrdersNotification } from "../../services/authService";
+import { playNotificationSound } from "../../utils/sound";
 import { ModalActionDialog } from "../common/ModalActionDialog";
 import { ModalConfirm } from "../common/ModalConfirm";
 
@@ -27,24 +28,51 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   const { logout } = useAuth();
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [unconfirmedCount, setUnconfirmedCount] = useState<number>(2);
+  const [unconfirmedCount, setUnconfirmedCount] = useState<number>(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
   const [logoutErrorModal, setLogoutErrorModal] = useState<boolean>(false);
 
-  // Polling số đơn mới mỗi 5 giây theo [QĐ-05]
+  // Polling số đơn mới mỗi 5 giây theo [QĐ-05] và phát chuông thông báo
   useEffect(() => {
     let isMounted = true;
-    const fetchCount = async () => {
+    let lastLatestId: number | null = null;
+    let prevCount = 0;
+    let isFirstRun = true;
+
+    const checkNotifications = async () => {
       try {
-        const count = await getUnconfirmedOrdersCount();
-        if (isMounted) setUnconfirmedCount(count);
+        const data = await getUnreadOrdersNotification(lastLatestId);
+        const currentCount = data.unread_count ?? data.count ?? 0;
+        const latestId = data.latest_order_id ?? null;
+
+        if (isMounted) {
+          setUnconfirmedCount(currentCount);
+
+          // Phát chuông khi có đơn mới
+          const hasNewOrder =
+            !isFirstRun &&
+            ((latestId !== null && (lastLatestId === null || latestId > lastLatestId)) ||
+              currentCount > prevCount);
+
+          if (hasNewOrder) {
+            playNotificationSound();
+            // Bắn event để trang danh sách đơn cập nhật tức thì nếu đang mở
+            window.dispatchEvent(new CustomEvent("admin_new_order"));
+          }
+
+          if (latestId !== null) {
+            lastLatestId = latestId;
+          }
+          prevCount = currentCount;
+          isFirstRun = false;
+        }
       } catch {
         // bỏ qua lỗi polling
       }
     };
 
-    fetchCount();
-    const interval = setInterval(fetchCount, 5000);
+    checkNotifications();
+    const interval = setInterval(checkNotifications, 5000);
     return () => {
       isMounted = false;
       clearInterval(interval);

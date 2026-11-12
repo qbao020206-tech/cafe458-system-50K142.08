@@ -8,6 +8,11 @@ from app.core.config import get_settings
 from app.core.errors import AppError
 from app.modules.menu.models import MenuItem, MenuItemStatus
 from app.modules.orders.models import CafeOrder, OrderItem, OrderStatus, PaymentMethod
+from app.modules.orders.qr_generator import (
+    build_vietqr_emvco_payload,
+    generate_qr_png_data_url,
+    normalize_transfer_content,
+)
 from app.modules.orders.schemas import CreateOrderInput, OrderPreviewInput
 from app.modules.tables.models import CafeTable, TableStatus
 
@@ -69,9 +74,9 @@ async def preview_order(session: AsyncSession, request: OrderPreviewInput) -> di
             raise AppError("PAYMENT_NOT_CONFIGURED", "Thông tin chuyển khoản chưa được cấu hình", 503)
         bank_bin = settings.bank_bin.get_secret_value()
         account_no = settings.bank_account_no.get_secret_value()
-        account_name = settings.bank_account_name.get_secret_value()
-        params = urlencode({"amount": total, "addInfo": f"BAN {table.so_ban}", "accountName": account_name})
-        qr_url = f"https://img.vietqr.io/image/{bank_bin}-{account_no}-compact2.png?{params}"
+        transfer_content = normalize_transfer_content(table.so_ban)
+        payload = build_vietqr_emvco_payload(bank_bin, account_no, total, transfer_content)
+        qr_url = generate_qr_png_data_url(payload)
     return {
         "ma_ban": table.ma_ban,
         "so_ban": table.so_ban,

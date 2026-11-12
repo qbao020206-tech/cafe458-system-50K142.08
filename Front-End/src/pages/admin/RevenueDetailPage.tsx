@@ -6,12 +6,13 @@ import { getRevenueDetail } from "../../services/revenueService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { extractApiError } from "../../services/api";
+import { getTodayFormatted } from "../../utils/date";
 
 export const RevenueDetailPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const periodParam = searchParams.get("period") || "31/10/2026";
+  const periodParam = searchParams.get("period") || getTodayFormatted();
 
   const [detail, setDetail] = useState<RevenueDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

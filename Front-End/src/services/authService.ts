@@ -34,3 +34,13 @@ export const getUnconfirmedOrdersCount = async (): Promise<number> => {
     return 0;
   }
 };
+
+export const getUnreadOrdersNotification = async (
+  afterId?: number | null
+): Promise<UnreadOrdersResponse> => {
+  const response = await api.get<UnreadOrdersResponse>(
+    "/admin/notifications/unread-orders",
+    { params: afterId !== null && afterId !== undefined ? { after_id: afterId } : {} }
+  );
+  return response.data;
+};

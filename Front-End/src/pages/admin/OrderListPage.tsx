@@ -12,11 +12,12 @@ import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { OrderDatePickerModal } from "../../components/admin/OrderDatePickerModal";
 import { EmptyClipboardIcon } from "../../components/common/EmptyClipboardIcon";
 import { extractApiError } from "../../services/api";
+import { getTodayFormatted } from "../../utils/date";
 
 export const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
 
-  const [currentDate, setCurrentDate] = useState<string>("31/10/2026");
+  const [currentDate, setCurrentDate] = useState<string>(getTodayFormatted);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -37,25 +38,42 @@ export const OrderListPage: React.FC = () => {
     message: "",
   });
 
-  const fetchOrders = useCallback(async (date: string) => {
+  const fetchOrders = useCallback(async (date: string, isBackground = false) => {
     try {
-      setLoading(true);
+      if (!isBackground) setLoading(true);
       const data = await getOrdersByDate(date);
       setOrders(data);
     } catch (err: unknown) {
-      const apiErr = extractApiError(err);
-      setFeedbackModal({
-        isOpen: true,
-        type: "error",
-        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
-      });
+      if (!isBackground) {
+        const apiErr = extractApiError(err);
+        setFeedbackModal({
+          isOpen: true,
+          type: "error",
+          message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
+        });
+      }
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   }, []);
 
+  // Tải danh sách đơn khi đổi ngày, đồng thời tự động cập nhật mỗi 5 giây hoặc khi có thông báo đơn mới
   useEffect(() => {
-    fetchOrders(currentDate);
+    fetchOrders(currentDate, false);
+
+    const interval = setInterval(() => {
+      fetchOrders(currentDate, true);
+    }, 5000);
+
+    const handleNewOrder = () => {
+      fetchOrders(currentDate, true);
+    };
+    window.addEventListener("admin_new_order", handleNewOrder);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("admin_new_order", handleNewOrder);
+    };
   }, [currentDate, fetchOrders]);
 
   const handleOpenDeleteDialog = (id: string) => {

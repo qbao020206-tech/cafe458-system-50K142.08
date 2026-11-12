@@ -71,6 +71,14 @@ pnpm-debug.log*
 # Test frontend
 coverage/
 .vitest/
+__tests__/
+**/__tests__/
+setupTests.ts
+**/setupTests.ts
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
 
 # ==============================================================
 # IDE, EDITOR VÀ HỆ ĐIỀU HÀNH

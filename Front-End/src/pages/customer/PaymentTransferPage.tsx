@@ -52,16 +52,13 @@ export const PaymentTransferPage: React.FC = () => {
     fetchPreview();
   }, [qrCode, items, totalQuantity]);
 
-  const effectiveTable = previewData?.so_ban || tableNumber || "03";
+  const rawTable = previewData?.so_ban || tableNumber || "03";
+  const effectiveTable = rawTable.replace(/^Bàn\s*/i, "").trim() || rawTable;
   const displayAmount = previewData?.total_amount ?? totalAmount;
-  const transferContent = `Bàn ${effectiveTable}`;
+  const transferContent = `BAN ${effectiveTable}`;
 
-  // Sử dụng QR URL từ Back-End preview hoặc fallback sinh mã chuẩn VietQR
-  const qrUrl =
-    previewData?.payment_qr_url ||
-    `https://img.vietqr.io/image/${BANK_CONFIG.BANK_BIN}-${BANK_CONFIG.BANK_ACCOUNT_NO}-compact2.png?amount=${displayAmount}&addInfo=${encodeURIComponent(
-      transferContent
-    )}&accountName=${encodeURIComponent(BANK_CONFIG.BANK_ACCOUNT_NAME)}`;
+  // Sử dụng QR URL Base64 trực tiếp từ Back-End preview
+  const qrUrl = previewData?.payment_qr_url || "";
 
   const handleComplete = async () => {
     if (totalQuantity === 0) return;
@@ -172,8 +169,7 @@ export const PaymentTransferPage: React.FC = () => {
 
           {/* Lời nhắc chụp lại giao dịch */}
           <div className="text-[13px] text-[#666666] text-center leading-relaxed">
-            <p>Sau khi chuyển khoản, nhấn Hoàn tất</p>
-            <p>Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết</p>
+            <p>{previewData?.payment_message || "Sau khi chuyển khoản, nhấn Hoàn tất. Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết"}</p>
           </div>
         </div>
       )}

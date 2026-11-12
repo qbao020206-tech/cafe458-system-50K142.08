@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface OrderDatePickerModalProps {
   isOpen: boolean;
@@ -13,21 +13,63 @@ export const OrderDatePickerModal: React.FC<OrderDatePickerModalProps> = ({
   onClose,
   onSelectDate,
 }) => {
-  // Trích xuất ngày từ currentDate (ví dụ "31/10/2026")
-  const currentDay = parseInt(currentDate.split("/")[0], 10) || 31;
-  const [selectedDay, setSelectedDay] = useState<number>(currentDay);
+  const parts = currentDate.split("/");
+  const initialDay = parseInt(parts[0], 10) || new Date().getDate();
+  const initialMonth = parseInt(parts[1], 10) || new Date().getMonth() + 1;
+  const initialYear = parseInt(parts[2], 10) || new Date().getFullYear();
+
+  const [year, setYear] = useState<number>(initialYear);
+  const [month, setMonth] = useState<number>(initialMonth);
+  const [selectedDay, setSelectedDay] = useState<number>(initialDay);
+
+  useEffect(() => {
+    if (isOpen) {
+      const p = currentDate.split("/");
+      const d = parseInt(p[0], 10) || new Date().getDate();
+      const m = parseInt(p[1], 10) || new Date().getMonth() + 1;
+      const y = parseInt(p[2], 10) || new Date().getFullYear();
+      setYear(y);
+      setMonth(m);
+      setSelectedDay(d);
+    }
+  }, [isOpen, currentDate]);
 
   if (!isOpen) return null;
 
-  // Lịch tháng 10/2026:
-  // Ngày 1/10/2026 rơi vào Thứ Năm (T5) -> 3 ô trống đầu (T2, T3, T4)
-  // Tháng 10 có 31 ngày
-  const emptyDaysBefore = [null, null, null];
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
+  // Tính số ngày trong tháng được chọn
+  const daysInMonthCount = new Date(year, month, 0).getDate();
+  const daysInMonth = Array.from({ length: daysInMonthCount }, (_, i) => i + 1);
+
+  // Ngày đầu tháng rơi vào thứ mấy (0: CN, 1: T2, ..., 6: T7)
+  const firstDayOfWeek = new Date(year, month - 1, 1).getDay();
+  // Chuyển sang chuẩn T2 = 0, T3 = 1, ..., CN = 6
+  const mondayOffset = (firstDayOfWeek + 6) % 7;
+  const emptyDaysBefore = Array.from({ length: mondayOffset });
+
+  const handlePrevMonth = () => {
+    if (month === 1) {
+      setMonth(12);
+      setYear((prev) => prev - 1);
+    } else {
+      setMonth((prev) => prev - 1);
+    }
+    setSelectedDay(1);
+  };
+
+  const handleNextMonth = () => {
+    if (month === 12) {
+      setMonth(1);
+      setYear((prev) => prev + 1);
+    } else {
+      setMonth((prev) => prev + 1);
+    }
+    setSelectedDay(1);
+  };
 
   const handleConfirm = () => {
     const formattedDay = selectedDay.toString().padStart(2, "0");
-    onSelectDate(`${formattedDay}/10/2026`);
+    const formattedMonth = month.toString().padStart(2, "0");
+    onSelectDate(`${formattedDay}/${formattedMonth}/${year}`);
     onClose();
   };
 
@@ -40,10 +82,28 @@ export const OrderDatePickerModal: React.FC<OrderDatePickerModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         className="bg-white w-[340px] max-w-[92%] rounded-2xl p-5 shadow-2xl border border-black/10 flex flex-col items-center animate-in fade-in zoom-in-95 duration-150"
       >
-        {/* Tiêu đề tháng năm màu đỏ chuẩn Figma */}
-        <h3 className="text-[#D1342C] font-bold text-[18px] text-center mb-4">
-          Tháng 10, 2026
-        </h3>
+        {/* Tiêu đề tháng năm và nút chuyển tháng */}
+        <div className="flex items-center justify-between w-full mb-4 px-2">
+          <button
+            type="button"
+            onClick={handlePrevMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#666666] hover:bg-[#FAF6EE] cursor-pointer"
+            aria-label="Tháng trước"
+          >
+            ‹
+          </button>
+          <h3 className="text-[#D1342C] font-bold text-[18px] text-center">
+            Tháng {month}, {year}
+          </h3>
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#666666] hover:bg-[#FAF6EE] cursor-pointer"
+            aria-label="Tháng sau"
+          >
+            ›
+          </button>
+        </div>
 
         {/* Tiêu đề thứ trong tuần */}
         <div className="grid grid-cols-7 w-full text-center text-[#666666] text-[13px] font-medium mb-2">
