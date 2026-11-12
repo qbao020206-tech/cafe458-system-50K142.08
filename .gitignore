@@ -42,8 +42,6 @@ wheels/
 *.egg
 
 # Testing & Báo cáo độ phủ
-tests/
-Back-End/tests/
 .pytest_cache/
 .coverage
 htmlcov/
@@ -68,17 +66,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Test frontend
+# Test frontend coverage & cache
 coverage/
 .vitest/
-__tests__/
-**/__tests__/
-setupTests.ts
-**/setupTests.ts
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
 
 # ==============================================================
 # IDE, EDITOR VÀ HỆ ĐIỀU HÀNH

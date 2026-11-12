@@ -27,8 +27,7 @@ async def seed_owner() -> None:
                 select(Owner).where(Owner.ten_dang_nhap == username)
             )
             if existing:
-                existing.mat_khau = hashed
-                print(f"[seed_owner] Updated existing owner: {username}")
+                print(f"[seed_owner] Owner already exists: {username}, keeping existing password.")
             else:
                 owner = Owner(ten_dang_nhap=username, mat_khau=hashed)
                 session.add(owner)

@@ -17,9 +17,14 @@ from app.modules.tables.router import router as tables_router
 from app.system.router import router as system_router
 
 app = FastAPI(title="Cafe 458 API", version="0.1.0")
+cors_origins = [
+    origin.strip().rstrip("/")
+    for origin in get_settings().frontend_base_url.split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[get_settings().frontend_base_url],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
