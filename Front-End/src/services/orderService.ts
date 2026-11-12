@@ -1,44 +1,50 @@
 import api from "./api";
-import { CreateOrderPayload, CreateOrderResponse } from "../types/order";
-import { addCustomerOrder } from "./adminOrderService";
-import { setTableServing } from "./tableService";
+import {
+  CreateOrderPayload,
+  CreatedOrderResponse,
+  OrderPreviewPayload,
+  OrderPreviewResponse,
+} from "../types/order";
+
+export const previewOrder = async (
+  payload: OrderPreviewPayload
+): Promise<OrderPreviewResponse> => {
+  const token = payload.qr || payload.qr_token || "";
+  const requestBody = {
+    qr: token,
+    qr_token: token,
+    items: payload.items.map((i) => ({
+      ma_mon: i.ma_mon,
+      so_luong: i.so_luong,
+    })),
+    phuong_thuc_thanh_toan: payload.phuong_thuc_thanh_toan,
+  };
+
+  const response = await api.post<OrderPreviewResponse>(
+    "/customer/orders/preview",
+    requestBody
+  );
+  return response.data;
+};
 
 export const createOrder = async (
-  payload: CreateOrderPayload,
-): Promise<CreateOrderResponse> => {
-  try {
-    const response = await api.post<CreateOrderResponse>(
-      "/customer/orders",
-      payload,
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error?.response?.data?.error) {
-      throw error;
-    }
-    // Giả lập lưu đơn thành công khi thử nghiệm Front-End offline
-    if (!error.response && payload.qr_code !== "trigger_fail") {
-      const tableNumber = payload.qr_code.replace("ban", "") || "03";
+  payload: CreateOrderPayload
+): Promise<CreatedOrderResponse> => {
+  const token = payload.qr || payload.qr_token || payload.qr_code || "";
+  const requestBody = {
+    qr: token,
+    qr_token: token,
+    items: payload.items.map((i) => ({
+      ma_mon: i.ma_mon,
+      so_luong: i.so_luong,
+    })),
+    phuong_thuc_thanh_toan: payload.phuong_thuc_thanh_toan,
+    ghi_chu: payload.ghi_chu || null,
+  };
 
-      // Lưu đơn vào danh sách đơn của admin để hiển thị trên giao diện quản trị
-      const newAdminOrder = addCustomerOrder({
-        tableNumber,
-        items: payload.items,
-        paymentMethod: payload.phuong_thuc_thanh_toan,
-        note: payload.ghi_chu,
-      });
-
-      // Cập nhật trạng thái bàn sang "Đang phục vụ" (BR-UC4-01)
-      setTableServing(tableNumber);
-
-      return {
-        ma_don_hang: parseInt(newAdminOrder.id, 10),
-        so_ban: newAdminOrder.tableNumber,
-        thoi_gian_dat: new Date().toISOString(),
-        trang_thai: "Chưa xác nhận thanh toán",
-        tong_tien: newAdminOrder.total,
-      };
-    }
-    throw error;
-  }
+  const response = await api.post<CreatedOrderResponse>(
+    "/customer/orders",
+    requestBody
+  );
+  return response.data;
 };

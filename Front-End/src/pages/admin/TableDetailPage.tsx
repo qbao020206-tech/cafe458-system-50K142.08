@@ -9,6 +9,7 @@ import {
 } from "../../services/tableService";
 import { ModalActionDialog } from "../../components/common/ModalActionDialog";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const TableDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,11 +43,12 @@ export const TableDetailPage: React.FC = () => {
         return;
       }
       setTable(data);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     } finally {
       setLoading(false);
@@ -76,11 +78,12 @@ export const TableDetailPage: React.FC = () => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
         navigate("/admin/tables", { replace: true });
       }, 1200);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: err?.message || "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };
@@ -89,7 +92,8 @@ export const TableDetailPage: React.FC = () => {
   const handleConfirmEmpty = async () => {
     if (!id) return;
     try {
-      await confirmEmptyTable(id);
+      const updated = await confirmEmptyTable(id);
+      setTable(updated);
 
       // Hiển thị thông báo thành công chuẩn UC 4.4: "Đã đưa bàn về trạng thái Trống"
       setFeedbackModal({
@@ -103,11 +107,12 @@ export const TableDetailPage: React.FC = () => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
         navigate("/admin/tables", { replace: true });
       }, 1200);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };
@@ -164,39 +169,31 @@ export const TableDetailPage: React.FC = () => {
               {/* Trạng thái và nút Xóa bàn */}
               <div className="flex flex-col items-end space-y-3">
                 {isServing ? (
-                  /* Bàn đang phục vụ: nhãn vàng */
+                  /* Bàn đang phục vụ: nhãn vàng - ẨN HOÀN TOÀN nút Xóa bàn (BR-UC4-08, 09, 11) */
                   <span className="px-4 py-1.5 rounded-full text-[14px] font-semibold bg-[#FDE8AD] border border-[#F59E0B]/60 text-[#92400E]">
                     Đang phục vụ
                   </span>
                 ) : (
-                  /* Bàn trống: nhãn xanh dương */
-                  <span className="px-5 py-1.5 rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8]">
-                    Trống
-                  </span>
-                )}
+                  <>
+                    {/* Bàn trống: nhãn xanh dương */}
+                    <span className="px-5 py-1.5 rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8]">
+                      Trống
+                    </span>
 
-                {/* Nút Xóa bàn */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isServing) {
-                      setFeedbackModal({
-                        isOpen: true,
-                        type: "error",
-                        message: "Chỉ được xóa bàn ở trạng thái Trống!",
-                      });
-                    } else {
-                      setIsDeleteDialogOpen(true);
-                    }
-                  }}
-                  className="px-5 py-2 rounded-[14px] bg-[#8A2424] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
-                >
-                  Xóa bàn
-                </button>
+                    {/* Nút Xóa bàn (chỉ hiển thị khi bàn ở trạng thái Trống - BR-UC4-08, 09, 11) */}
+                    <button
+                      type="button"
+                      onClick={() => setIsDeleteDialogOpen(true)}
+                      className="px-5 py-2 rounded-[14px] bg-[#8A2424] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+                    >
+                      Xóa bàn
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Nút Xác nhận bàn trống (chỉ hiện khi bàn Đang phục vụ - UC 4.4) */}
+            {/* Nút Xác nhận bàn trống (chỉ hiện khi bàn Đang phục vụ - UC 4.4, BR-UC4-11) */}
             {isServing && (
               <div className="flex justify-center mt-6">
                 <button

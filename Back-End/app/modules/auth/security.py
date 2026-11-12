@@ -7,12 +7,13 @@ from pathlib import Path
 import tempfile
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
+from app.core.errors import AppError
 from app.infrastructure.database import get_session
 from app.modules.auth.models import Owner
 
@@ -90,10 +91,10 @@ async def require_owner(
     session: AsyncSession = Depends(get_session),
 ) -> str:
     settings = get_settings()
-    unauthorized = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token đăng nhập không hợp lệ hoặc đã hết hạn",
-        headers={"WWW-Authenticate": "Bearer"},
+    unauthorized = AppError(
+        code="UNAUTHORIZED",
+        message="Token đăng nhập không hợp lệ hoặc đã hết hạn",
+        status_code=401,
     )
     if credentials is None:
         raise unauthorized

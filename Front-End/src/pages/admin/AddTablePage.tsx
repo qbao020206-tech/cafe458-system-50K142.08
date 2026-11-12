@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { addTable } from "../../services/tableService";
 import { TableItem } from "../../types/table";
-import { QrCodeCard } from "../../components/common/QrCodeCard";
+import { QrCodeCard, QrCodeCardRef } from "../../components/common/QrCodeCard";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const AddTablePage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export const AddTablePage: React.FC = () => {
   const [tableNumber, setTableNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdTable, setCreatedTable] = useState<TableItem | null>(null);
-  const [downloadQrFn, setDownloadQrFn] = useState<(() => void) | null>(null);
+  const qrCardRef = useRef<QrCodeCardRef | null>(null);
   const [systemError, setSystemError] = useState<string | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -29,20 +30,28 @@ export const AddTablePage: React.FC = () => {
     try {
       const newTable = await addTable(trimmed);
       setCreatedTable(newTable);
-    } catch (err: any) {
-      if (err?.message === "Không được để trống!") {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      if (
+        apiErr.message === "Không được để trống!" ||
+        (apiErr.field === "so_ban" && apiErr.code === "VALIDATION_ERROR")
+      ) {
         setErrorMessage("Không được để trống!");
-      } else if (err?.message === "Số bàn đã tồn tại!" || err?.isDuplicate) {
+      } else if (
+        apiErr.code === "DUPLICATE_TABLE" ||
+        apiErr.message.includes("tồn tại") ||
+        apiErr.message === "Số bàn đã tồn tại!"
+      ) {
         setErrorMessage("Số bàn đã tồn tại!");
       } else {
-        setSystemError("Có lỗi xảy ra, vui lòng thử lại!");
+        setSystemError(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
       }
     }
   };
 
   const handleDownloadQr = () => {
-    if (downloadQrFn) {
-      downloadQrFn();
+    if (qrCardRef.current) {
+      qrCardRef.current.download();
     }
     // Sau khi tải mã QR xong quay về sơ đồ bàn (Bảng 99)
     setTimeout(() => {
@@ -157,9 +166,10 @@ export const AddTablePage: React.FC = () => {
 
               {/* Mã QR riêng của bàn */}
               <QrCodeCard
+                ref={qrCardRef}
+                tableNumericId={createdTable.numericId}
                 tableId={createdTable.id}
                 size={180}
-                onDownloadReady={(fn) => setDownloadQrFn(() => fn)}
               />
 
               {/* Nút Tải mã QR */}

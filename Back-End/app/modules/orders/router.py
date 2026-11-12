@@ -37,12 +37,12 @@ async def create_customer_order(
     order = await create_order(session, request)
     total = sum(line.gia * line.so_luong for line in order.chi_tiet)
     return CreatedOrder(
+        message="Đặt món thành công",
         order_id=order.ma_don_hang,
         total_amount=total,
         payment_method=order.phuong_thuc_thanh_toan,
         status=order.trang_thai.value,
         placed_at=order.thoi_gian_dat,
-        transfer_confirmation_deadline=order.transfer_confirmation_deadline,
     )
 
 
@@ -80,7 +80,7 @@ async def confirm_payment(
     session: AsyncSession = Depends(get_session),
 ) -> OrderMessage:
     await confirm_order_payment(session, order_id)
-    return OrderMessage(message="Đã xác nhận thanh toán")
+    return OrderMessage(message="Xác nhận đã nhận tiền!")
 
 
 @admin_router.delete("/orders/{order_id}", response_model=OrderMessage)

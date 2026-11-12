@@ -7,7 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database import get_session
 from app.modules.auth.security import require_owner
-from app.modules.tables.schemas import TableCreateInput, TableDeleteOutput, TableMessage, TableOutput
+from app.modules.tables.schemas import (
+    TableCreateInput,
+    TableCreateOutput,
+    TableDeleteOutput,
+    TableMessage,
+    TableOutput,
+)
 from app.modules.tables.service import (
     create_table,
     customer_menu_url,
@@ -37,13 +43,21 @@ async def read_tables(
     return [_table_output(table) for table in await list_tables(session)]
 
 
-@router.post("", response_model=TableOutput, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TableCreateOutput, status_code=status.HTTP_201_CREATED)
 async def add_table(
     request: TableCreateInput,
     username: str = Depends(require_owner),
     session: AsyncSession = Depends(get_session),
-) -> TableOutput:
-    return _table_output(await create_table(session, username, request.so_ban))
+) -> TableCreateOutput:
+    table = await create_table(session, username, request.so_ban)
+    out = _table_output(table)
+    return TableCreateOutput(
+        ma_ban=out.ma_ban,
+        so_ban=out.so_ban,
+        trang_thai=out.trang_thai,
+        qr_download_url=out.qr_download_url,
+        message="Thêm bàn thành công",
+    )
 
 
 @router.get("/{table_id}/qr-image")
@@ -71,7 +85,7 @@ async def remove_table(
     session: AsyncSession = Depends(get_session),
 ) -> TableDeleteOutput:
     await delete_empty_table(session, table_id)
-    return TableDeleteOutput(message="Đã xóa bàn và vô hiệu hóa mã QR", invalidated_qr=True)
+    return TableDeleteOutput(message="Xóa bàn thành công", invalidated_qr=True)
 
 
 @router.patch("/{table_id}/empty", response_model=TableMessage)
@@ -81,4 +95,4 @@ async def confirm_table_empty(
     session: AsyncSession = Depends(get_session),
 ) -> TableMessage:
     await mark_table_empty(session, table_id)
-    return TableMessage(message="Đã xác nhận bàn trống")
+    return TableMessage(message="Đã đưa bàn về trạng thái Trống")

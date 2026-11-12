@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
-import { addAdminDish } from "../../services/adminMenuService";
+import { addAdminDish, uploadDishImage } from "../../services/adminMenuService";
 import { CoffeeCupIcon } from "../../components/common/CoffeeCupIcon";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const AddDishPage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,21 +12,38 @@ export const AddDishPage: React.FC = () => {
 
   const [dishName, setDishName] = useState<string>("");
   const [dishPrice, setDishPrice] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Lỗi trường nhập liệu
   const [nameError, setNameError] = useState<string | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
   const [systemError, setSystemError] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
+      // Hiển thị preview tức thì
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Upload ngay lên server để lấy URL lưu trữ
+      try {
+        setUploadingImage(true);
+        const res = await uploadDishImage(file);
+        setUploadedUrl(res.image_url);
+      } catch {
+        // Nếu upload thất bại, vẫn giữ preview để thử lại khi submit
+      } finally {
+        setUploadingImage(false);
+      }
     }
   };
 
@@ -61,11 +79,24 @@ export const AddDishPage: React.FC = () => {
     if (hasError) return;
 
     try {
+      setSubmitting(true);
       const numPrice = Number(trimmedPrice.replace(/\./g, "").replace(/,/g, ""));
+
+      let finalImageUrl = uploadedUrl;
+      if (!finalImageUrl && imageFile) {
+        try {
+          const res = await uploadDishImage(imageFile);
+          finalImageUrl = res.image_url;
+          setUploadedUrl(res.image_url);
+        } catch {
+          // Bỏ qua lỗi upload nếu có
+        }
+      }
+
       await addAdminDish({
         ten_mon: trimmedName,
         gia_ban: numPrice,
-        hinh_anh: imagePreview,
+        hinh_anh: finalImageUrl || null,
       });
 
       // Điều hướng về màn hình Danh sách món kèm thông báo thành công (Bảng 76)
@@ -73,14 +104,20 @@ export const AddDishPage: React.FC = () => {
         replace: true,
         state: { successMessage: "Thêm món thành công" },
       });
-    } catch (err: any) {
-      if (err?.field === "ten_mon") {
-        setNameError(err.message);
-      } else if (err?.field === "gia_ban") {
-        setPriceError(err.message);
+    } catch (err: unknown) {
+      // Giữ nguyên hình ảnh và thông tin đã chọn khi lỗi (BR-UC3-06)
+      const apiErr = extractApiError(err);
+      if (apiErr.field === "ten_mon") {
+        setNameError(apiErr.message);
+      } else if (apiErr.field === "gia_ban") {
+        setPriceError(apiErr.message);
+      } else if (apiErr.code === "DUPLICATE_NAME" || apiErr.message.includes("tồn tại")) {
+        setNameError("Tên món đã tồn tại!");
       } else {
-        setSystemError("Có lỗi xảy ra, vui lòng thử lại!");
+        setSystemError(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -154,13 +191,13 @@ export const AddDishPage: React.FC = () => {
                   if (priceError) setPriceError(null);
                 }}
                 placeholder="Nhập giá bán"
-                className={`w-full h-[48px] pl-3.5 pr-9 rounded-[14px] bg-white text-[15px] text-[#22201C] focus:outline-none transition-colors ${
+                className={`w-full h-[48px] pl-3.5 pr-10 rounded-[14px] bg-white text-[15px] text-[#22201C] focus:outline-none transition-colors ${
                   priceError
                     ? "border-2 border-[#D1342C] focus:border-[#D1342C]"
                     : "border border-[#CCCCCC] focus:border-[#2F5D50]"
                 }`}
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[15px] text-[#22201C]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[15px] font-bold text-[#22201C]">
                 đ
               </span>
             </div>
@@ -171,69 +208,63 @@ export const AddDishPage: React.FC = () => {
             )}
           </div>
 
-          {/* Trường Hình ảnh minh họa */}
-          <div className="mb-8">
-            <label className="block font-bold text-[16px] text-[#22201C] leading-snug">
-              Hình ảnh minh họa
-            </label>
-            <p className="text-[13px] text-[#666666] mt-0.5 mb-3">
-              Không chọn hình sẽ dùng hình mặc định
-            </p>
+          {/* Khu vực Chọn hình ảnh món */}
+          <div className="mb-6">
+            <span className="block font-bold text-[16px] text-[#22201C] mb-2">
+              Hình ảnh
+            </span>
 
-            <div className="flex items-center space-x-4">
-              {/* Khung xem trước hình ảnh */}
-              <div className="w-[85px] h-[85px] rounded-[18px] bg-[#E8E2D5] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+            <div className="bg-white rounded-[20px] p-4 border border-[#E8E0D2] shadow-sm flex items-center justify-between">
+              {/* Khung hiển thị ảnh preview hoặc icon ly */}
+              <div className="w-[84px] h-[84px] rounded-[16px] bg-[#E8E2D5] flex items-center justify-center overflow-hidden flex-shrink-0 border border-[#DDD5C7]">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="Xem trước"
+                    alt="Xem trước món"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <CoffeeCupIcon className="w-10 h-10 text-[#5C3A0E]/70" />
+                  <CoffeeCupIcon className="w-10 h-10 text-[#7D7265]" />
                 )}
               </div>
 
-              {/* Nút Chọn / Đổi hình ảnh */}
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="h-[42px] px-4 rounded-[12px] bg-white border border-[#2F5D50] text-[#2F5D50] font-semibold text-[14px] flex items-center space-x-2 cursor-pointer active:scale-95 transition-all hover:bg-[#2F5D50]/5"
-                >
-                  <svg
-                    className="w-4 h-4 text-[#2F5D50]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                  <span>
-                    {imagePreview ? "Đổi hình ảnh" : "Chọn hình ảnh"}
-                  </span>
-                </button>
-              </div>
+              {/* Input file ẩn và nút Chọn ảnh */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+              />
+
+              <button
+                type="button"
+                disabled={uploadingImage}
+                onClick={() => fileInputRef.current?.click()}
+                className="h-[44px] px-5 rounded-[14px] bg-[#2F5D50] text-white text-[14px] font-medium flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm disabled:opacity-60"
+              >
+                {uploadingImage ? "Đang tải ảnh..." : "Chọn ảnh"}
+              </button>
             </div>
           </div>
 
-          {/* Nút Lưu màu xanh đậm chuẩn Figma */}
-          <button
-            type="submit"
-            className="w-full h-[50px] rounded-[14px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm"
-          >
-            Lưu
-          </button>
+          {/* Hai nút Hủy & Lưu chuẩn Figma */}
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <button
+              type="button"
+              onClick={() => navigate("/admin/menu")}
+              className="w-[120px] h-[48px] rounded-[14px] bg-white border-2 border-[#D1342C] text-[#D1342C] font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-[120px] h-[48px] rounded-[14px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform disabled:opacity-60"
+            >
+              {submitting ? "Đang lưu..." : "Lưu"}
+            </button>
+          </div>
         </form>
       </div>
 

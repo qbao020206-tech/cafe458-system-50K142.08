@@ -105,23 +105,16 @@ async def mark_table_empty(session: AsyncSession, table_id: int) -> None:
         raise AppError("TABLE_NOT_FOUND", "Không tìm thấy bàn", 404)
     if table.trang_thai != TableStatus.SERVING:
         raise AppError("TABLE_NOT_SERVING", "Bàn không ở trạng thái Đang phục vụ", 400)
-    pending_ids = list(
-        (
-            await session.execute(
-                select(CafeOrder.ma_don_hang).where(
-                    CafeOrder.ma_ban == table_id,
-                    CafeOrder.da_xoa.is_(False),
-                    CafeOrder.trang_thai == OrderStatus.AWAITING_PAYMENT,
-                )
-            )
-        ).scalars().all()
-    )
-    if pending_ids:
-        ids = ", ".join(str(order_id) for order_id in pending_ids)
-        raise AppError(
-            "TABLE_HAS_UNRESOLVED_ORDERS",
-            f"Bàn còn đơn chưa xử lý ({ids}). Vui lòng xác nhận hoặc hủy các đơn trước khi làm trống bàn.",
-            409,
+
+    unresolved_order = await session.scalar(
+        select(CafeOrder.ma_don_hang).where(
+            CafeOrder.ma_ban == table_id,
+            CafeOrder.da_xoa.is_(False),
+            CafeOrder.trang_thai == OrderStatus.AWAITING_PAYMENT,
         )
+    )
+    if unresolved_order is not None:
+        raise AppError("TABLE_HAS_UNRESOLVED_ORDERS", "Có lỗi xảy ra, vui lòng thử lại!", 409)
+
     table.trang_thai = TableStatus.EMPTY
     await session.commit()

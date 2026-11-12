@@ -11,6 +11,7 @@ import { ModalActionDialog } from "../../components/common/ModalActionDialog";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { OrderDatePickerModal } from "../../components/admin/OrderDatePickerModal";
 import { EmptyClipboardIcon } from "../../components/common/EmptyClipboardIcon";
+import { extractApiError } from "../../services/api";
 
 export const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,11 +42,12 @@ export const OrderListPage: React.FC = () => {
       setLoading(true);
       const data = await getOrdersByDate(date);
       setOrders(data);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     } finally {
       setLoading(false);
@@ -78,12 +80,13 @@ export const OrderListPage: React.FC = () => {
       setTimeout(() => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
       }, 1500);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setOrderToDelete(null);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };

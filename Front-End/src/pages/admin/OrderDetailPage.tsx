@@ -10,6 +10,7 @@ import {
 import { formatCurrency } from "../../utils/formatCurrency";
 import { ModalActionDialog } from "../../components/common/ModalActionDialog";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,11 +48,12 @@ export const OrderDetailPage: React.FC = () => {
         return;
       }
       setOrder(data);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     } finally {
       setLoading(false);
@@ -80,11 +82,12 @@ export const OrderDetailPage: React.FC = () => {
       setTimeout(() => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
       }, 1500);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };
@@ -109,11 +112,12 @@ export const OrderDetailPage: React.FC = () => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
         navigate("/admin/orders", { replace: true });
       }, 1200);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };

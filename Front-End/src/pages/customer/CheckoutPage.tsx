@@ -6,6 +6,8 @@ import { useCart } from "../../contexts/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { MESSAGES } from "../../constants/messages";
 import { CartItem } from "../../types/order";
+import { previewOrder } from "../../services/orderService";
+import { extractApiError } from "../../services/api";
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ export const CheckoutPage: React.FC = () => {
 
   const [step, setStep] = useState<"review" | "select_payment">("review");
   const [showZeroAlert, setShowZeroAlert] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (totalQuantity === 0) {
@@ -31,13 +35,38 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [totalQuantity]);
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (totalQuantity === 0) {
       setShowZeroAlert(true);
       return;
     }
     if (step === "review") {
-      setStep("select_payment");
+      try {
+        setLoading(true);
+        setErrorMessage(null);
+        await previewOrder({
+          qr: qrCode,
+          qr_token: qrCode,
+          items: items.map((i) => ({
+            ma_mon: i.dish.ma_mon,
+            so_luong: i.quantity,
+          })),
+          phuong_thuc_thanh_toan: paymentMethod,
+        });
+        setStep("select_payment");
+      } catch (err: unknown) {
+        const apiErr = extractApiError(err);
+        if (
+          apiErr.message === MESSAGES.ORDER_MIN_ONE ||
+          apiErr.message === "Vui lòng chọn ít nhất một món"
+        ) {
+          setShowZeroAlert(true);
+        } else {
+          setErrorMessage(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
+        }
+      } finally {
+        setLoading(false);
+      }
     } else {
       if (paymentMethod === "Chuyển khoản") {
         navigate("/payment-transfer");
@@ -244,9 +273,14 @@ export const CheckoutPage: React.FC = () => {
             <button
               type="button"
               onClick={handleNextStep}
-              className="bg-[#2F5D50] hover:bg-[#254b40] text-white font-bold h-[48px] px-[24px] rounded-[14px] text-[16px] active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
+              disabled={loading}
+              className="bg-[#2F5D50] hover:bg-[#254b40] disabled:opacity-60 text-white font-bold h-[48px] px-[24px] rounded-[14px] text-[16px] active:scale-95 transition-all shadow-none flex items-center justify-center cursor-pointer"
             >
-              Tiếp tục
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span>Tiếp tục</span>
+              )}
             </button>
           </div>
         </>
@@ -257,6 +291,13 @@ export const CheckoutPage: React.FC = () => {
         type="error"
         message={MESSAGES.ORDER_MIN_ONE}
         onClose={handleZeroAlertClose}
+      />
+
+      <ModalConfirm
+        isOpen={!!errorMessage}
+        type="error"
+        message={errorMessage}
+        onClose={() => setErrorMessage(null)}
       />
     </CustomerLayout>
   );

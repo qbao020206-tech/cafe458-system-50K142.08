@@ -4,7 +4,8 @@ import { CustomerLayout } from "../../components/layout/CustomerLayout";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { useCart } from "../../contexts/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { createOrder } from "../../services/orderService";
+import { createOrder, previewOrder } from "../../services/orderService";
+import { OrderPreviewResponse } from "../../types/order";
 import { BANK_CONFIG } from "../../constants/bank";
 
 export const PaymentTransferPage: React.FC = () => {
@@ -22,6 +23,7 @@ export const PaymentTransferPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [successModalOpen, setSuccessModalOpen] = useState<boolean>(false);
   const [errorModalOpen, setErrorModalOpen] = useState<boolean>(false);
+  const [previewData, setPreviewData] = useState<OrderPreviewResponse | null>(null);
 
   useEffect(() => {
     if (totalQuantity === 0 && !successModalOpen) {
@@ -29,12 +31,37 @@ export const PaymentTransferPage: React.FC = () => {
     }
   }, [totalQuantity, successModalOpen, navigate, qrCode]);
 
-  const effectiveTable = tableNumber || "03";
+  useEffect(() => {
+    if (totalQuantity === 0) return;
+    const fetchPreview = async () => {
+      try {
+        const data = await previewOrder({
+          qr: qrCode,
+          qr_token: qrCode,
+          items: items.map((i) => ({
+            ma_mon: i.dish.ma_mon,
+            so_luong: i.quantity,
+          })),
+          phuong_thuc_thanh_toan: "Chuyển khoản",
+        });
+        setPreviewData(data);
+      } catch {
+        // Fallback sang tính toán local
+      }
+    };
+    fetchPreview();
+  }, [qrCode, items, totalQuantity]);
+
+  const effectiveTable = previewData?.so_ban || tableNumber || "03";
+  const displayAmount = previewData?.total_amount ?? totalAmount;
   const transferContent = `Bàn ${effectiveTable}`;
-  // Sinh mã QR chuyển khoản VietQR chuẩn từ thông tin tài khoản ngân hàng của quán
-  const qrUrl = `https://img.vietqr.io/image/${BANK_CONFIG.BANK_BIN}-${BANK_CONFIG.BANK_ACCOUNT_NO}-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(
-    transferContent,
-  )}&accountName=${encodeURIComponent(BANK_CONFIG.BANK_ACCOUNT_NAME)}`;
+
+  // Sử dụng QR URL từ Back-End preview hoặc fallback sinh mã chuẩn VietQR
+  const qrUrl =
+    previewData?.payment_qr_url ||
+    `https://img.vietqr.io/image/${BANK_CONFIG.BANK_BIN}-${BANK_CONFIG.BANK_ACCOUNT_NO}-compact2.png?amount=${displayAmount}&addInfo=${encodeURIComponent(
+      transferContent
+    )}&accountName=${encodeURIComponent(BANK_CONFIG.BANK_ACCOUNT_NAME)}`;
 
   const handleComplete = async () => {
     if (totalQuantity === 0) return;
@@ -42,7 +69,8 @@ export const PaymentTransferPage: React.FC = () => {
     try {
       setLoading(true);
       await createOrder({
-        qr_code: qrCode || "ban03",
+        qr: qrCode,
+        qr_token: qrCode,
         items: items.map((i) => ({
           ma_mon: i.dish.ma_mon,
           so_luong: i.quantity,
@@ -94,28 +122,36 @@ export const PaymentTransferPage: React.FC = () => {
             </div>
 
             <div className="text-[26px] font-bold text-[#D1342C] my-2">
-              {formatCurrency(totalAmount)}
+              {formatCurrency(displayAmount)}
             </div>
 
             <div className="w-full space-y-2 text-[14px] text-[#666666] pt-1">
               <div className="flex justify-between items-center">
                 <span>Ngân hàng</span>
-                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_NAME}</span>
+                <span className="font-bold text-[#22201C]">
+                  {BANK_CONFIG.BANK_NAME}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span>Số tài khoản</span>
-                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NO}</span>
+                <span className="font-bold text-[#22201C]">
+                  {BANK_CONFIG.BANK_ACCOUNT_NO}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span>Chủ tài khoản</span>
-                <span className="font-bold text-[#22201C]">{BANK_CONFIG.BANK_ACCOUNT_NAME}</span>
+                <span className="font-bold text-[#22201C]">
+                  {BANK_CONFIG.BANK_ACCOUNT_NAME}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span>Nội dung</span>
-                <span className="font-bold text-[#22201C]">{transferContent}</span>
+                <span className="font-bold text-[#22201C]">
+                  {transferContent}
+                </span>
               </div>
             </div>
           </div>

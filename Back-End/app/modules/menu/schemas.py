@@ -1,19 +1,51 @@
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class MenuItemInput(BaseModel):
-    ten_mon: str = Field(min_length=1, max_length=50)
-    gia_ban: int = Field(gt=0)
+    ten_mon: str
+    gia_ban: int
     hinh_anh: str | None = Field(default=None, max_length=255)
+
+    @field_validator("ten_mon")
+    @classmethod
+    def validate_ten_mon(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Không được để trống!")
+        if len(v.strip()) > 50:
+            raise ValueError("Tên món tối đa 50 ký tự")
+        return v.strip()
+
+    @field_validator("gia_ban")
+    @classmethod
+    def validate_gia_ban(cls, v: int) -> int:
+        if v is None:
+            raise ValueError("Không được để trống!")
+        if v <= 0:
+            raise ValueError("Giá bán phải là số lớn hơn 0!")
+        return v
 
 
 class MenuItemUpdate(BaseModel):
-    ten_mon: str | None = Field(default=None, min_length=1, max_length=50)
-    gia_ban: int | None = Field(default=None, gt=0)
+    ten_mon: str | None = Field(default=None, max_length=50)
+    gia_ban: int | None = Field(default=None)
     hinh_anh: str | None = Field(default=None, max_length=255)
     trang_thai: str | None = Field(default=None)
 
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("ten_mon")
+    @classmethod
+    def validate_update_ten_mon(cls, v: str | None) -> str | None:
+        if v is not None and not v.strip():
+            raise ValueError("Không được để trống!")
+        return v.strip() if v is not None else None
+
+    @field_validator("gia_ban")
+    @classmethod
+    def validate_update_gia_ban(cls, v: int | None) -> int | None:
+        if v is not None and v <= 0:
+            raise ValueError("Giá bán phải là số lớn hơn 0!")
+        return v
 
     @model_validator(mode="after")
     def require_a_field(self) -> "MenuItemUpdate":
@@ -31,6 +63,15 @@ class MenuItemOutput(BaseModel):
     hinh_anh: str | None
     trang_thai: str
     ban_chay: bool = False
+
+
+class MenuItemCreateOutput(MenuItemOutput):
+    message: str = "Thêm món thành công"
+
+
+class MenuItemUpdateOutput(BaseModel):
+    message: str = "Cập nhật món thành công"
+    item: MenuItemOutput
 
 
 class CustomerMenuOutput(BaseModel):

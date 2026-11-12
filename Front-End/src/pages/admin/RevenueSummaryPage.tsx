@@ -6,6 +6,7 @@ import { getRevenueSummary } from "../../services/revenueService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { EmptyClipboardIcon } from "../../components/common/EmptyClipboardIcon";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const RevenueSummaryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,8 +22,9 @@ export const RevenueSummaryPage: React.FC = () => {
       setErrorMessage(null);
       const data = await getRevenueSummary(tab);
       setSummaries(data);
-    } catch {
-      setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      setErrorMessage(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }

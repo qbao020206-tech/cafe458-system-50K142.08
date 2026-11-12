@@ -13,7 +13,6 @@ from app.core.errors import AppError
 from app.modules.menu.models import MenuItem, MenuItemStatus
 from app.modules.menu.schemas import MenuItemInput, MenuItemUpdate
 from app.modules.orders.models import CafeOrder, OrderItem, OrderStatus
-from app.modules.settings.service import get_recommendation_settings
 from app.modules.tables.models import CafeTable
 
 MAX_IMAGE_BYTES = 2 * 1024 * 1024
@@ -43,8 +42,8 @@ async def customer_menu(session: AsyncSession, qr_token: str):
     if table is None:
         raise AppError("QR_INVALID", "Mã QR không hợp lệ", 404)
     now = datetime.now(UTC)
-    recommendation_limit, recommendation_lookback_days = await get_recommendation_settings()
-    cutoff = now - timedelta(days=recommendation_lookback_days)
+    recommendation_limit = 3
+    cutoff = now - timedelta(days=30)
     items = (
         await session.execute(
             select(MenuItem)
@@ -70,11 +69,7 @@ async def customer_menu(session: AsyncSession, qr_token: str):
                     )
                     .group_by(OrderItem.ma_mon)
                     .order_by(func.sum(OrderItem.so_luong).desc(), OrderItem.ma_mon.asc())
-                    .limit(
-                        min(recommendation_limit, len(items))
-                        if recommendation_limit is not None
-                        else None
-                    )
+                    .limit(min(recommendation_limit, len(items)))
                 )
             ).scalars().all()
         )
@@ -97,6 +92,10 @@ async def create_menu_item(session: AsyncSession, request: MenuItemInput) -> Men
     name = request.ten_mon.strip()
     if not name:
         raise AppError("VALIDATION_ERROR", "Không được để trống!", 422, "ten_mon")
+    if request.gia_ban is None:
+        raise AppError("VALIDATION_ERROR", "Không được để trống!", 422, "gia_ban")
+    if request.gia_ban <= 0:
+        raise AppError("INVALID_PRICE", "Giá bán phải là số lớn hơn 0!", 422, "gia_ban")
     duplicate = await session.scalar(
         select(MenuItem.ma_mon).where(
             MenuItem.da_xoa.is_(False), func.lower(MenuItem.ten_mon) == name.lower()

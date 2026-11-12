@@ -7,6 +7,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { CoffeeCupIcon } from "../../components/common/CoffeeCupIcon";
 import { ModalActionDialog } from "../../components/common/ModalActionDialog";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const MenuListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,11 +35,12 @@ export const MenuListPage: React.FC = () => {
       setLoading(true);
       const data = await getAdminDishes();
       setDishes(data);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     } finally {
       setLoading(false);
@@ -84,12 +86,13 @@ export const MenuListPage: React.FC = () => {
       setTimeout(() => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
       }, 1500);
-    } catch {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
       setDishToDelete(null);
       setFeedbackModal({
         isOpen: true,
         type: "error",
-        message: "Có lỗi xảy ra, vui lòng thử lại!",
+        message: apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!",
       });
     }
   };

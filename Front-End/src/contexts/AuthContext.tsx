@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { loginApi } from "../services/authService";
+import { loginApi, logoutApi } from "../services/authService";
 
 interface AuthContextType {
   token: string | null;
   username: string | null;
   isAuthenticated: boolean;
   login: (tenDangNhap: string, matKhau: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  clearSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,15 +43,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       ten_dang_nhap: tenDangNhap,
       mat_khau: matKhau,
     });
-    setToken(data.token);
-    setUsername(data.ten_dang_nhap);
+    const tokenVal = data.access_token || data.token || "";
+    setToken(tokenVal);
+    setUsername(data.ten_dang_nhap || tenDangNhap);
   };
 
-  const logout = () => {
+  const clearSession = () => {
     setToken(null);
     setUsername(null);
     sessionStorage.removeItem("cafe458_token");
     sessionStorage.removeItem("cafe458_user");
+  };
+
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } catch (err: any) {
+      // Nếu token đã hết hạn hoặc không hợp lệ (401), vẫn cho phép xóa session
+      if (err?.response?.status === 401) {
+        clearSession();
+        return;
+      }
+      throw err;
+    }
+    clearSession();
   };
 
   return (
@@ -61,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAuthenticated: !!token,
         login,
         logout,
+        clearSession,
       }}
     >
       {children}

@@ -9,7 +9,6 @@ from app.core.errors import AppError
 from app.modules.menu.models import MenuItem, MenuItemStatus
 from app.modules.orders.models import CafeOrder, OrderItem, OrderStatus, PaymentMethod
 from app.modules.orders.schemas import CreateOrderInput, OrderPreviewInput
-from app.modules.settings.service import get_transfer_confirmation_timeout
 from app.modules.tables.models import CafeTable, TableStatus
 
 VN_TZ = timezone(timedelta(hours=7), name="UTC+07:00")
@@ -23,6 +22,8 @@ def _merged_quantities(items) -> dict[int, int]:
 
 
 async def preview_order(session: AsyncSession, request: OrderPreviewInput) -> dict[str, object]:
+    if not request.items or any(item.quantity <= 0 for item in request.items):
+        raise AppError("EMPTY_ORDER_ITEMS", "Vui lòng chọn ít nhất một món", 422, "items")
     table = await session.scalar(
         select(CafeTable).where(
             CafeTable.ma_qr == request.qr_token,
@@ -56,7 +57,11 @@ async def preview_order(session: AsyncSession, request: OrderPreviewInput) -> di
     ]
     total = sum(line["thanh_tien"] for line in lines)
     qr_url = None
-    message = "Chờ thu tiền sau khi bưng nước ra" if request.payment_method == PaymentMethod.CASH else None
+    message = (
+        "Chờ thu tiền sau khi bưng nước ra"
+        if request.payment_method == PaymentMethod.CASH
+        else "Sau khi chuyển khoản, nhấn Hoàn tất. Vui lòng chụp lại giao dịch để đối chiếu khi cần thiết"
+    )
     if request.payment_method == PaymentMethod.TRANSFER:
         settings = get_settings()
         bank_values = (settings.bank_bin, settings.bank_account_no, settings.bank_account_name)
@@ -80,9 +85,9 @@ async def preview_order(session: AsyncSession, request: OrderPreviewInput) -> di
 
 async def create_order(session: AsyncSession, request: CreateOrderInput) -> CafeOrder:
     """Create an order and mark its table serving in one database transaction."""
+    if not request.items or any(item.quantity <= 0 for item in request.items):
+        raise AppError("EMPTY_ORDER_ITEMS", "Vui lòng chọn ít nhất một món", 422, "items")
     requested_quantities = _merged_quantities(request.items)
-
-    timeout_minutes = await get_transfer_confirmation_timeout()
 
     async with session.begin():
         table = (
@@ -126,12 +131,6 @@ async def create_order(session: AsyncSession, request: CreateOrderInput) -> Cafe
         session.add(order)
         table.trang_thai = TableStatus.SERVING
         await session.flush()
-
-    order.transfer_confirmation_deadline = (
-        order.thoi_gian_dat + timedelta(minutes=timeout_minutes)
-        if order.phuong_thuc_thanh_toan == PaymentMethod.TRANSFER
-        else None
-    )
 
     return order
 
@@ -261,8 +260,6 @@ async def soft_delete_order(session: AsyncSession, order_id: int) -> None:
     )
     if order is None:
         raise AppError("ORDER_NOT_FOUND", "Không tìm thấy đơn", 404)
-    if order.trang_thai == OrderStatus.PAID:
-        raise AppError("PAID_ORDER_CANNOT_BE_DELETED", "Đơn đã thanh toán không được xóa", 409)
     order.da_xoa = True
     await session.commit()
 

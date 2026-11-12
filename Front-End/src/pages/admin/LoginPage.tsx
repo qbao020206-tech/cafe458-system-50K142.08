@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,9 +47,16 @@ export const LoginPage: React.FC = () => {
       await login(username.trim(), password);
       // Đăng nhập thành công -> chuyển sang Trang chủ (U6)
       navigate("/admin");
-    } catch {
-      // Đăng nhập không thành công
-      setLoginFailedModal(true);
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      if (apiErr.field === "ten_dang_nhap" || apiErr.field === "username") {
+        setUsernameError(true);
+      } else if (apiErr.field === "mat_khau" || apiErr.field === "password") {
+        setPasswordError(true);
+      } else {
+        // Đăng nhập không thành công
+        setLoginFailedModal(true);
+      }
     } finally {
       setLoading(false);
     }

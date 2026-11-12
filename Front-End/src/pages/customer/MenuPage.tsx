@@ -8,6 +8,7 @@ import { getMenuByQr } from "../../services/menuService";
 import { Dish, RecommendedDish } from "../../types/menu";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { MESSAGES } from "../../constants/messages";
+import { extractApiError } from "../../services/api";
 
 export const MenuPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -34,23 +35,29 @@ export const MenuPage: React.FC = () => {
   const [showZeroAlert, setShowZeroAlert] = useState<boolean>(false);
 
   useEffect(() => {
-    const effectiveQr = qrParam || "ban03";
-
     const fetchMenu = async () => {
       try {
         setLoading(true);
         setErrorMessage(null);
         setIsQrInvalid(false);
-        const data = await getMenuByQr(effectiveQr);
-        setTableSession(effectiveQr, data.so_ban);
+
+        const token = (qrParam || "").trim();
+        if (!token) {
+          setIsQrInvalid(true);
+          return;
+        }
+
+        const data = await getMenuByQr(token);
+        setTableSession(token, data.so_ban);
         setRecommendedDishes(data.mon_de_cu || []);
         setAllDishes(data.tat_ca_mon || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const apiErr = extractApiError(err);
         if (
-          err?.isQrInvalid ||
-          err?.response?.status === 404 ||
-          err?.response?.data?.error?.code === "QR_INVALID" ||
-          effectiveQr === "invalid"
+          apiErr.status === 404 ||
+          apiErr.code === "QR_INVALID" ||
+          apiErr.message === MESSAGES.QR_INVALID ||
+          apiErr.message === "Mã QR không hợp lệ"
         ) {
           setIsQrInvalid(true);
         } else {

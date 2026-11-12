@@ -5,6 +5,7 @@ import { RevenueDetail } from "../../types/revenue";
 import { getRevenueDetail } from "../../services/revenueService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const RevenueDetailPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -22,8 +23,9 @@ export const RevenueDetailPage: React.FC = () => {
       setErrorMessage(null);
       const data = await getRevenueDetail(periodParam);
       setDetail(data);
-    } catch {
-      setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      setErrorMessage(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,7 @@ export const RevenueDetailPage: React.FC = () => {
                       </span>
 
                       {/* Nhãn Bán chạy nhất (đồng hạng nếu cùng số lượng cao nhất - BR-UC5-09) */}
-                      {stat.isBestSeller && (
+                      {(stat.ban_chay_nhat ?? stat.isBestSeller) && (
                         <span className="px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#D1EAE2] text-[#1E5642]">
                           Bán chạy nhất
                         </span>

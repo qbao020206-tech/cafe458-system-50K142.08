@@ -1,11 +1,12 @@
 import bcrypt
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
+from app.core.errors import AppError
 from app.infrastructure.database import get_session
 from app.modules.auth.models import Owner
 from app.modules.auth.schemas import AccessToken, AuthMessage, ChangePasswordInput, OwnerLoginInput
@@ -36,11 +37,7 @@ async def owner_login(
         except ValueError:
             valid_password = False
     if not valid_password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Đăng nhập không thành công!",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise AppError("LOGIN_FAILED", "Đăng nhập không thành công!", 401)
     return AccessToken(access_token=create_owner_token(request.username))
 
 
@@ -50,7 +47,7 @@ async def owner_logout(
     _: str = Depends(require_owner),
 ) -> AuthMessage:
     if credentials is None:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise AppError("UNAUTHORIZED", "Token đăng nhập không hợp lệ hoặc đã hết hạn", 401)
     try:
         payload = jwt.decode(
             credentials.credentials,
@@ -59,7 +56,7 @@ async def owner_logout(
         )
         await revoke_token(credentials.credentials, int(payload["exp"]))
     except (jwt.PyJWTError, KeyError, TypeError, ValueError) as error:
-        raise HTTPException(status_code=401, detail="Unauthorized") from error
+        raise AppError("UNAUTHORIZED", "Token đăng nhập không hợp lệ hoặc đã hết hạn", 401) from error
     return AuthMessage(message="Đã đăng xuất")
 
 
@@ -69,16 +66,18 @@ async def change_owner_password(
     username: str = Depends(require_owner),
     session: AsyncSession = Depends(get_session),
 ) -> AuthMessage:
-    if request.new_password != request.confirm_new_password:
-        raise HTTPException(
-            status_code=400,
-            detail="Mật khẩu mới và mật khẩu nhập lại không giống nhau!",
-        )
+    if not request.current_password or not request.current_password.strip():
+        raise AppError("VALIDATION_ERROR", "Không được để trống!", 422, field="mat_khau_cu")
+    if not request.new_password or not request.new_password.strip():
+        raise AppError("VALIDATION_ERROR", "Không được để trống!", 422, field="mat_khau_moi")
+    if not request.confirm_new_password or not request.confirm_new_password.strip():
+        raise AppError("VALIDATION_ERROR", "Không được để trống!", 422, field="nhap_lai_mat_khau_moi")
+
     owner = await session.scalar(
         select(Owner).where(Owner.ten_dang_nhap == username).with_for_update()
     )
     if owner is None:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise AppError("UNAUTHORIZED", "Token đăng nhập không hợp lệ hoặc đã hết hạn", 401)
     try:
         valid_old_password = bcrypt.checkpw(
             request.current_password.encode("utf-8"), owner.mat_khau.encode("utf-8")
@@ -86,9 +85,18 @@ async def change_owner_password(
     except ValueError:
         valid_old_password = False
     if not valid_old_password:
-        raise HTTPException(status_code=400, detail="Mật khẩu cũ không đúng!")
+        raise AppError("INVALID_OLD_PASSWORD", "Mật khẩu cũ không đúng!", 400, field="mat_khau_cu")
+
+    if request.new_password != request.confirm_new_password:
+        raise AppError(
+            "PASSWORD_MISMATCH",
+            "Mật khẩu mới và mật khẩu nhập lại không giống nhau!",
+            400,
+            field="nhap_lai_mat_khau_moi",
+        )
+
     owner.mat_khau = bcrypt.hashpw(
         request.new_password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
     await session.commit()
-    return AuthMessage(message="Đổi mật khẩu thành công")
+    return AuthMessage(message="Đổi mật khẩu thành công!")

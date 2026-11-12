@@ -42,6 +42,8 @@ wheels/
 *.egg
 
 # Testing & Báo cáo độ phủ
+tests/
+Back-End/tests/
 .pytest_cache/
 .coverage
 htmlcov/

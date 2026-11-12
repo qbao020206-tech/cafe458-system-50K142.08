@@ -4,11 +4,18 @@ export interface Dish {
   gia_ban: number;
   hinh_anh: string | null;
   trang_thai: "Hiển thị" | "Ẩn";
-  da_xoa: boolean;
+  da_xoa?: boolean;
+  ban_chay?: boolean;
 }
 
 export interface RecommendedDish extends Dish {
-  rank: number; // 1, 2, 3 [QĐ-18]
+  rank?: number; // 1, 2, 3 [QĐ-18]
+}
+
+export interface CustomerMenuResponse {
+  ma_ban: number;
+  so_ban: string;
+  menu: Dish[];
 }
 
 export interface TableMenuResponse {

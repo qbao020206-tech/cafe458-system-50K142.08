@@ -4,7 +4,8 @@ import { CustomerLayout } from "../../components/layout/CustomerLayout";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { useCart } from "../../contexts/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { createOrder } from "../../services/orderService";
+import { createOrder, previewOrder } from "../../services/orderService";
+import { OrderPreviewResponse } from "../../types/order";
 
 export const PaymentCashPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export const PaymentCashPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [successModalOpen, setSuccessModalOpen] = useState<boolean>(false);
   const [errorModalOpen, setErrorModalOpen] = useState<boolean>(false);
+  const [previewData, setPreviewData] = useState<OrderPreviewResponse | null>(null);
 
   useEffect(() => {
     if (totalQuantity === 0 && !successModalOpen) {
@@ -28,7 +30,29 @@ export const PaymentCashPage: React.FC = () => {
     }
   }, [totalQuantity, successModalOpen, navigate, qrCode]);
 
-  const effectiveTable = tableNumber || "03";
+  useEffect(() => {
+    if (totalQuantity === 0) return;
+    const fetchPreview = async () => {
+      try {
+        const data = await previewOrder({
+          qr: qrCode,
+          qr_token: qrCode,
+          items: items.map((i) => ({
+            ma_mon: i.dish.ma_mon,
+            so_luong: i.quantity,
+          })),
+          phuong_thuc_thanh_toan: "Tiền mặt",
+        });
+        setPreviewData(data);
+      } catch {
+        // Fallback sang tính toán local
+      }
+    };
+    fetchPreview();
+  }, [qrCode, items, totalQuantity]);
+
+  const effectiveTable = previewData?.so_ban || tableNumber || "03";
+  const displayAmount = previewData?.total_amount ?? totalAmount;
 
   const handleComplete = async () => {
     if (totalQuantity === 0) return;
@@ -36,7 +60,8 @@ export const PaymentCashPage: React.FC = () => {
     try {
       setLoading(true);
       await createOrder({
-        qr_code: qrCode || "ban03",
+        qr: qrCode,
+        qr_token: qrCode,
         items: items.map((i) => ({
           ma_mon: i.dish.ma_mon,
           so_luong: i.quantity,
@@ -76,7 +101,7 @@ export const PaymentCashPage: React.FC = () => {
           {/* Ô số liệu tổng tiền */}
           <div className="bg-white border border-[#E8E0D2] flex items-center justify-between px-[14px] py-[12px] rounded-[14px] text-[#22201C] text-[16px]">
             <p className="font-normal">Tổng tiền</p>
-            <p className="font-bold">{formatCurrency(totalAmount)}</p>
+            <p className="font-bold">{formatCurrency(displayAmount)}</p>
           </div>
 
           {/* Thông báo lưu ý */}

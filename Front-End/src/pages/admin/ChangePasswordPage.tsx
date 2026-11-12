@@ -4,10 +4,11 @@ import { AdminLayout } from "../../components/layout/AdminLayout";
 import { useAuth } from "../../contexts/AuthContext";
 import { changePasswordApi } from "../../services/authService";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const ChangePasswordPage: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { clearSession } = useAuth();
 
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
@@ -66,17 +67,30 @@ export const ChangePasswordPage: React.FC = () => {
       await changePasswordApi({
         mat_khau_cu: oldPassword,
         mat_khau_moi: newPassword,
+        nhap_lai_mat_khau_moi: confirmPassword,
       });
 
-      // Thành công: đăng xuất và chuyển hướng về màn hình Đăng nhập kèm thông báo thành công (Bảng 127)
-      logout();
+      // Thành công: xóa session và chuyển hướng về màn hình Đăng nhập kèm thông báo thành công (Bảng 127)
+      clearSession();
       navigate("/login", {
         state: { successMessage: "Đổi mật khẩu thành công!" },
         replace: true,
       });
-    } catch (err: any) {
-      if (err.isOldPasswordWrong || err.response?.data?.error === "Mật khẩu cũ không đúng!") {
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      if (
+        apiErr.code === "INVALID_OLD_PASSWORD" ||
+        apiErr.message === "Mật khẩu cũ không đúng!"
+      ) {
         setWrongOldPasswordModal(true);
+      } else if (apiErr.field === "mat_khau_cu") {
+        setOldPassError(apiErr.message || "Không được để trống!");
+      } else if (apiErr.field === "mat_khau_moi") {
+        setNewPassError(apiErr.message || "Không được để trống!");
+      } else if (apiErr.field === "nhap_lai_mat_khau_moi") {
+        setConfirmPassError(
+          apiErr.message || "Mật khẩu mới và mật khẩu nhập lại không giống nhau!"
+        );
       } else {
         setSaveErrorModal(true);
       }

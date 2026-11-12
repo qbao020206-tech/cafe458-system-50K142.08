@@ -5,6 +5,7 @@ import { TableItem } from "../../types/table";
 import { getTables } from "../../services/tableService";
 import { EmptyClipboardIcon } from "../../components/common/EmptyClipboardIcon";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
+import { extractApiError } from "../../services/api";
 
 export const TableListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,8 +20,9 @@ export const TableListPage: React.FC = () => {
       setErrorMessage(null);
       const data = await getTables();
       setTables(data);
-    } catch {
-      setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
+    } catch (err: unknown) {
+      const apiErr = extractApiError(err);
+      setErrorMessage(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
