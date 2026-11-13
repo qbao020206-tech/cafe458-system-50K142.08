@@ -10,7 +10,13 @@ export const getMenuByQr = async (
   });
 
   const data = response.data;
-  const rawMenu = data.menu || [];
+  const rawMenu = (data.menu || []).map((item) => ({
+    ...item,
+    gia_ban:
+      item.gia_ban > 0 && item.gia_ban < 1000
+        ? item.gia_ban * 1000
+        : item.gia_ban,
+  }));
 
   // tat_ca_mon = menu.filter(item => item.trang_thai === "Hiển thị")
   const tat_ca_mon = rawMenu.filter((item) => item.trang_thai === "Hiển thị");

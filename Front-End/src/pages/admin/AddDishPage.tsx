@@ -47,6 +47,28 @@ export const AddDishPage: React.FC = () => {
     }
   };
 
+  // Chuẩn hóa giá bán: tự động chuyển các số < 1000 (ví dụ 30, 25, 35) hoặc "30k" thành 30.000đ
+  const parsePrice = (val: string): number => {
+    const trimmed = val.trim().toLowerCase();
+    if (!trimmed) return 0;
+    const cleanStr = trimmed.replace(/k$/, "");
+    const rawNum = Number(cleanStr.replace(/\./g, "").replace(/,/g, ""));
+    if (isNaN(rawNum) || rawNum <= 0) return 0;
+    // Nếu nhập số < 1000 (ví dụ: 30, 25, 45...) hoặc có hậu tố 'k' thì tự động nhân 1000
+    if (rawNum < 1000 || trimmed.includes("k")) {
+      return Math.round(rawNum * 1000);
+    }
+    return Math.round(rawNum);
+  };
+
+  const handlePriceBlur = () => {
+    if (!dishPrice.trim()) return;
+    const parsed = parsePrice(dishPrice);
+    if (parsed > 0) {
+      setDishPrice(parsed.toLocaleString("vi-VN"));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setNameError(null);
@@ -65,12 +87,13 @@ export const AddDishPage: React.FC = () => {
     }
 
     // Kiểm tra giá bán (BR-UC3-02 & BR-UC3-04)
+    let parsedPrice = 0;
     if (!trimmedPrice) {
       setPriceError("Không được để trống!");
       hasError = true;
     } else {
-      const numPrice = Number(trimmedPrice.replace(/\./g, "").replace(/,/g, ""));
-      if (isNaN(numPrice) || numPrice <= 0) {
+      parsedPrice = parsePrice(trimmedPrice);
+      if (parsedPrice <= 0) {
         setPriceError("Giá bán phải là số lớn hơn 0!");
         hasError = true;
       }
@@ -80,7 +103,6 @@ export const AddDishPage: React.FC = () => {
 
     try {
       setSubmitting(true);
-      const numPrice = Number(trimmedPrice.replace(/\./g, "").replace(/,/g, ""));
 
       let finalImageUrl = uploadedUrl;
       if (!finalImageUrl && imageFile) {
@@ -95,7 +117,7 @@ export const AddDishPage: React.FC = () => {
 
       await addAdminDish({
         ten_mon: trimmedName,
-        gia_ban: numPrice,
+        gia_ban: parsedPrice,
         hinh_anh: finalImageUrl || null,
       });
 
@@ -190,6 +212,7 @@ export const AddDishPage: React.FC = () => {
                   setDishPrice(e.target.value);
                   if (priceError) setPriceError(null);
                 }}
+                onBlur={handlePriceBlur}
                 placeholder="Nhập giá bán"
                 className={`w-full h-[48px] pl-3.5 pr-10 rounded-[14px] bg-white text-[15px] text-[#22201C] focus:outline-none transition-colors ${
                   priceError

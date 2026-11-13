@@ -22,6 +22,8 @@ class MenuItemInput(BaseModel):
             raise ValueError("Không được để trống!")
         if v <= 0:
             raise ValueError("Giá bán phải là số lớn hơn 0!")
+        if 0 < v < 1000:
+            return v * 1000
         return v
 
 
@@ -45,6 +47,8 @@ class MenuItemUpdate(BaseModel):
     def validate_update_gia_ban(cls, v: int | None) -> int | None:
         if v is not None and v <= 0:
             raise ValueError("Giá bán phải là số lớn hơn 0!")
+        if v is not None and 0 < v < 1000:
+            return v * 1000
         return v
 
     @model_validator(mode="after")

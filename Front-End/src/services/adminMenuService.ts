@@ -19,15 +19,23 @@ export interface UploadImageResponse {
   image_url: string;
 }
 
+const normalizeDish = (dish: Dish): Dish => ({
+  ...dish,
+  gia_ban:
+    dish.gia_ban > 0 && dish.gia_ban < 1000
+      ? dish.gia_ban * 1000
+      : dish.gia_ban,
+});
+
 export const getAdminDishes = async (): Promise<Dish[]> => {
   const response = await api.get<Dish[]>("/admin/menu");
-  return response.data || [];
+  return (response.data || []).map(normalizeDish);
 };
 
 export const getDishById = async (id: number): Promise<Dish | null> => {
   const dishes = await getAdminDishes();
   const found = dishes.find((dish) => dish.ma_mon === id);
-  return found || null;
+  return found ? normalizeDish(found) : null;
 };
 
 export const uploadDishImage = async (file: File): Promise<UploadImageResponse> => {
@@ -54,7 +62,7 @@ export const addAdminDish = async (payload: AddDishPayload): Promise<Dish> => {
       hinh_anh: payload.hinh_anh || null,
     }
   );
-  return response.data as unknown as Dish;
+  return normalizeDish(response.data as unknown as Dish);
 };
 
 export const updateAdminDish = async (
@@ -71,7 +79,7 @@ export const updateAdminDish = async (
       trang_thai: payload.trang_thai,
     }
   );
-  return response.data.item;
+  return normalizeDish(response.data.item);
 };
 
 export const deleteAdminDish = async (id: number): Promise<boolean> => {
