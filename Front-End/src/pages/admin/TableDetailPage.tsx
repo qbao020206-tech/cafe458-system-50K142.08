@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { TableItem } from "../../types/table";
@@ -7,6 +7,7 @@ import {
   deleteTable,
   confirmEmptyTable,
 } from "../../services/tableService";
+import { QrCodeCard, QrCodeCardRef } from "../../components/common/QrCodeCard";
 import { ModalActionDialog } from "../../components/common/ModalActionDialog";
 import { ModalConfirm } from "../../components/common/ModalConfirm";
 import { extractApiError } from "../../services/api";
@@ -17,6 +18,8 @@ export const TableDetailPage: React.FC = () => {
 
   const [table, setTable] = useState<TableItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const qrCardRef = useRef<QrCodeCardRef | null>(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   // Modal xác nhận xóa bàn (UC 4.3)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
@@ -58,6 +61,26 @@ export const TableDetailPage: React.FC = () => {
   useEffect(() => {
     fetchTable();
   }, [fetchTable]);
+
+  // Tải mã QR của bàn về thiết bị
+  const handleDownloadQr = async () => {
+    if (!qrCardRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const success = await qrCardRef.current.download();
+      if (success) {
+        setFeedbackModal({
+          isOpen: true,
+          type: "success",
+          message: "Đã lưu mã QR về máy thành công",
+        });
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải mã QR:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Xóa bàn (UC 4.3)
   const handleDeleteTable = async () => {
@@ -205,6 +228,30 @@ export const TableDetailPage: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Phần hiển thị mã QR riêng của bàn và tải mã QR về máy */}
+            <div className="mt-8 pt-6 border-t border-[#E8E0D2] flex flex-col items-center">
+              <span className="text-[14px] font-semibold text-[#22201C] mb-3">
+                Mã QR của bàn
+              </span>
+              <QrCodeCard
+                ref={qrCardRef}
+                tableNumericId={table.numericId}
+                tableId={table.id}
+                size={160}
+              />
+              <p className="text-[12px] text-[#666666] mt-2.5 text-center max-w-[260px]">
+                Chạm giữ vào mã QR hoặc bấm nút bên dưới để lưu ảnh về máy
+              </p>
+              <button
+                type="button"
+                onClick={handleDownloadQr}
+                disabled={isDownloading}
+                className="mt-3.5 px-6 py-2 rounded-full bg-[#2F5D50] text-white font-bold text-[14px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm disabled:opacity-75"
+              >
+                {isDownloading ? "Đang lưu..." : "Tải mã QR"}
+              </button>
+            </div>
           </div>
         )}
       </div>

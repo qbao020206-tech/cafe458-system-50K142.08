@@ -14,7 +14,7 @@ export const TableListPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchTables = useCallback(async () => {
+  const fetchTables = useCallback(async (retryCount = 0) => {
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -22,6 +22,13 @@ export const TableListPage: React.FC = () => {
       setTables(data);
     } catch (err: unknown) {
       const apiErr = extractApiError(err);
+      // Nếu là lỗi mạng tạm thời (ví dụ Safari ngắt kết nối khi đang xử lý tệp tải xuống), thử lại 1 lần sau 800ms
+      if (apiErr.code === "NETWORK_ERROR" && retryCount < 1) {
+        setTimeout(() => {
+          fetchTables(retryCount + 1);
+        }, 800);
+        return;
+      }
       setErrorMessage(apiErr.message || "Có lỗi xảy ra, vui lòng thử lại!");
     } finally {
       setLoading(false);
