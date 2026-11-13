@@ -186,32 +186,18 @@ export const AddTablePage: React.FC = () => {
                 size={180}
               />
 
-              {/* Hướng dẫn thao tác cho thiết bị di động */}
-              <p className="text-[12px] text-[#666666] mt-2.5 text-center max-w-[280px]">
-                Chạm giữ vào mã QR hoặc bấm nút bên dưới để lưu ảnh về máy
-              </p>
-
               {/* Nút Tải mã QR */}
               <button
                 type="button"
                 onClick={handleDownloadQr}
                 disabled={isDownloading}
-                className="px-8 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm mt-4 disabled:opacity-75"
+                className="px-8 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm mt-6 disabled:opacity-75"
               >
                 {isDownloading
                   ? "Đang lưu..."
                   : downloadSuccess
                   ? "Đã lưu mã QR thành công!"
                   : "Tải mã QR"}
-              </button>
-
-              {/* Nút Quay về sơ đồ bàn */}
-              <button
-                type="button"
-                onClick={() => navigate("/admin/tables")}
-                className="mt-3 text-[14px] text-[#2F5D50] hover:underline font-medium cursor-pointer"
-              >
-                Về sơ đồ bàn
               </button>
             </div>
           )
