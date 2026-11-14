@@ -175,16 +175,16 @@ export const TableDetailPage: React.FC = () => {
                   </span>
                 ) : (
                   <>
-                    {/* Bàn trống: nhãn xanh dương */}
-                    <span className="px-5 py-1.5 rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8]">
+                    {/* Bàn trống: nhãn xanh dương chuẩn Figma */}
+                    <span className="w-[96px] h-[34px] rounded-full text-[14px] font-semibold bg-[#E1EDFD] border border-[#2563EB]/50 text-[#1D4ED8] flex items-center justify-center">
                       Trống
                     </span>
 
-                    {/* Nút Xóa bàn (chỉ hiển thị khi bàn ở trạng thái Trống - BR-UC4-08, 09, 11) */}
+                    {/* Nút Xóa bàn chuẩn Figma (bo tròn hoàn toàn rounded-full, kích thước đồng bộ với nhãn Trống) */}
                     <button
                       type="button"
                       onClick={() => setIsDeleteDialogOpen(true)}
-                      className="px-5 py-2 rounded-[14px] bg-[#8A2424] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+                      className="w-[96px] h-[34px] rounded-full bg-[#8A2424] text-white font-bold text-[14px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
                     >
                       Xóa bàn
                     </button>
