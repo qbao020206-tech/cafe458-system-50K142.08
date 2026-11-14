@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { AdminOrder } from "../../types/adminOrder";
 import {
@@ -16,8 +16,23 @@ import { getTodayFormatted } from "../../utils/date";
 
 export const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [currentDate, setCurrentDate] = useState<string>(getTodayFormatted);
+  const getInitialDate = (): string => {
+    const paramDate = searchParams.get("date");
+    if (paramDate) return paramDate;
+
+    const stateDate = (location.state as { selectedDate?: string } | null)?.selectedDate;
+    if (stateDate) return stateDate;
+
+    const storedDate = sessionStorage.getItem("admin_selected_order_date");
+    if (storedDate) return storedDate;
+
+    return getTodayFormatted();
+  };
+
+  const [currentDate, setCurrentDate] = useState<string>(getInitialDate);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -75,6 +90,20 @@ export const OrderListPage: React.FC = () => {
       window.removeEventListener("admin_new_order", handleNewOrder);
     };
   }, [currentDate, fetchOrders]);
+
+  const handleDateSelect = (newDate: string) => {
+    setCurrentDate(newDate);
+    sessionStorage.setItem("admin_selected_order_date", newDate);
+    setSearchParams({ date: newDate }, { replace: true });
+  };
+
+  useEffect(() => {
+    const paramDate = searchParams.get("date");
+    if (paramDate && paramDate !== currentDate) {
+      setCurrentDate(paramDate);
+      sessionStorage.setItem("admin_selected_order_date", paramDate);
+    }
+  }, [searchParams, currentDate]);
 
   const handleOpenDeleteDialog = (id: string) => {
     setOrderToDelete(id);
@@ -185,7 +214,11 @@ export const OrderListPage: React.FC = () => {
               {orders.map((order) => (
                 <div
                   key={order.id}
-                  onClick={() => navigate(`/admin/orders/${order.id}`)}
+                  onClick={() =>
+                    navigate(`/admin/orders/${order.id}?date=${currentDate}`, {
+                      state: { fromDate: currentDate },
+                    })
+                  }
                   className="bg-white border border-[#E8E0D2] rounded-[16px] p-3.5 flex items-center justify-between cursor-pointer active:bg-orange-50/40 transition-colors shadow-sm"
                 >
                   {/* Thông tin mã đơn, số bàn, giờ, tổng tiền */}
@@ -236,7 +269,7 @@ export const OrderListPage: React.FC = () => {
         isOpen={isDatePickerOpen}
         currentDate={currentDate}
         onClose={() => setIsDatePickerOpen(false)}
-        onSelectDate={(newDate) => setCurrentDate(newDate)}
+        onSelectDate={handleDateSelect}
       />
 
       {/* Modal xác nhận xóa đơn chuẩn UC 2.3 */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { AdminOrder } from "../../types/adminOrder";
 import {
@@ -15,6 +15,20 @@ import { extractApiError } from "../../services/api";
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const fromDate =
+    searchParams.get("date") ||
+    (location.state as { fromDate?: string } | null)?.fromDate ||
+    sessionStorage.getItem("admin_selected_order_date") ||
+    "";
+
+  const backUrl = fromDate ? `/admin/orders?date=${fromDate}` : "/admin/orders";
+
+  const handleGoBack = useCallback(() => {
+    navigate(backUrl, { state: { selectedDate: fromDate } });
+  }, [backUrl, fromDate, navigate]);
 
   const [order, setOrder] = useState<AdminOrder | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +58,7 @@ export const OrderDetailPage: React.FC = () => {
       setLoading(true);
       const data = await getOrderDetail(id);
       if (!data) {
-        navigate("/admin/orders", { replace: true });
+        navigate(backUrl, { replace: true, state: { selectedDate: fromDate } });
         return;
       }
       setOrder(data);
@@ -104,13 +118,14 @@ export const OrderDetailPage: React.FC = () => {
         isOpen: true,
         type: "success",
         message: "Đã xóa đơn",
-        onAfterClose: () => navigate("/admin/orders", { replace: true }),
+        onAfterClose: () =>
+          navigate(backUrl, { replace: true, state: { selectedDate: fromDate } }),
       });
 
       // Sau 1.2s tự động quay về danh sách đơn
       setTimeout(() => {
         setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
-        navigate("/admin/orders", { replace: true });
+        navigate(backUrl, { replace: true, state: { selectedDate: fromDate } });
       }, 1200);
     } catch (err: unknown) {
       const apiErr = extractApiError(err);
@@ -127,13 +142,13 @@ export const OrderDetailPage: React.FC = () => {
       <AdminLayout
         title="Quản lý gọi món"
         showBackButton={true}
-        onBackClick={() => navigate("/admin/orders")}
+        onBackClick={handleGoBack}
         noMainPadding={true}
         breadcrumb={
           <div className="flex items-center space-x-1.5 text-[14px]">
             <button
               type="button"
-              onClick={() => navigate("/admin/orders")}
+              onClick={handleGoBack}
               className="text-[#D1342C] hover:underline cursor-pointer"
             >
               Danh sách đơn
@@ -156,13 +171,13 @@ export const OrderDetailPage: React.FC = () => {
     <AdminLayout
       title="Quản lý gọi món"
       showBackButton={true}
-      onBackClick={() => navigate("/admin/orders")}
+      onBackClick={handleGoBack}
       noMainPadding={true}
       breadcrumb={
         <div className="flex items-center space-x-1.5 text-[14px]">
           <button
             type="button"
-            onClick={() => navigate("/admin/orders")}
+            onClick={handleGoBack}
             className="text-[#D1342C] hover:underline cursor-pointer"
           >
             Danh sách đơn
