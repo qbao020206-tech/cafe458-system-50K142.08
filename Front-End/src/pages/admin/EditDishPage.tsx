@@ -294,15 +294,15 @@ export const EditDishPage: React.FC = () => {
             )}
           </div>
 
-          {/* Khu vực Chọn hình ảnh món */}
+          {/* Khu vực Chọn hình ảnh món chuẩn Figma */}
           <div className="mb-4">
             <span className="block font-bold text-[16px] text-[#22201C] mb-2">
               Hình ảnh
             </span>
 
-            <div className="bg-white rounded-[20px] p-4 border border-[#E8E0D2] shadow-sm flex items-center justify-between">
+            <div className="flex items-center space-x-3.5">
               {/* Khung hiển thị ảnh preview hoặc icon ly */}
-              <div className="w-[84px] h-[84px] rounded-[16px] bg-[#E8E2D5] flex items-center justify-center overflow-hidden flex-shrink-0 border border-[#DDD5C7]">
+              <div className="w-[80px] h-[80px] rounded-[16px] bg-[#E5DDCB] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -314,7 +314,7 @@ export const EditDishPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Input file ẩn và nút Chọn ảnh */}
+              {/* Input file ẩn và nút Đổi hình ảnh */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -327,9 +327,20 @@ export const EditDishPage: React.FC = () => {
                 type="button"
                 disabled={uploadingImage}
                 onClick={() => fileInputRef.current?.click()}
-                className="h-[44px] px-5 rounded-[14px] bg-[#2F5D50] text-white text-[14px] font-medium flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm disabled:opacity-60"
+                className="h-[42px] px-4 rounded-[12px] border border-[#2F5D50] bg-white text-[#2F5D50] text-[14px] font-semibold flex items-center space-x-2 cursor-pointer active:scale-95 transition-transform disabled:opacity-60"
               >
-                {uploadingImage ? "Đang tải ảnh..." : "Chọn ảnh"}
+                <svg
+                  className="w-5 h-5 text-[#2F5D50]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <rect width="18" height="18" x="3" y="3" rx="3" ry="3" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                </svg>
+                <span>{uploadingImage ? "Đang tải ảnh..." : "Đổi hình ảnh"}</span>
               </button>
             </div>
           </div>
@@ -367,19 +378,12 @@ export const EditDishPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Hai nút Hủy & Lưu chuẩn Figma */}
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <button
-              type="button"
-              onClick={() => navigate("/admin/menu")}
-              className="w-[120px] h-[48px] rounded-[14px] bg-white border-2 border-[#D1342C] text-[#D1342C] font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
-            >
-              Hủy
-            </button>
+          {/* Nút Lưu chuẩn Figma (toàn chiều rộng, không có nút Hủy) */}
+          <div className="mt-8">
             <button
               type="submit"
               disabled={submitting}
-              className="w-[120px] h-[48px] rounded-[14px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform disabled:opacity-60"
+              className="w-full h-[48px] rounded-[12px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm disabled:opacity-60"
             >
               {submitting ? "Đang lưu..." : "Lưu"}
             </button>
