@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { addTable } from "../../services/tableService";
@@ -13,11 +13,22 @@ export const AddTablePage: React.FC = () => {
   const [tableNumber, setTableNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdTable, setCreatedTable] = useState<TableItem | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const qrCardRef = useRef<QrCodeCardRef | null>(null);
   const [systemError, setSystemError] = useState<string | null>(null);
 
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+
+  // Tự động đóng pop-up thành công sau 3 giây hoặc người dùng có thể bấm vào để đóng ngay
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessModal]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -33,6 +44,7 @@ export const AddTablePage: React.FC = () => {
     try {
       const newTable = await addTable(trimmed);
       setCreatedTable(newTable);
+      setShowSuccessModal(true);
     } catch (err: unknown) {
       const apiErr = extractApiError(err);
       if (
@@ -149,30 +161,8 @@ export const AddTablePage: React.FC = () => {
               </form>
             </div>
           ) : (
-            /* Màn hình Thêm bàn thành công kèm mã QR riêng chuẩn UC 4.2 */
-            <div className="flex flex-col items-center mt-4">
-              {/* Hộp thông báo Thêm bàn thành công */}
-              <div className="bg-white border border-black rounded-2xl p-5 shadow-sm text-center w-full mb-6 flex flex-col items-center">
-                <div className="w-14 h-14 rounded-full border-2 border-[#1E5642] flex items-center justify-center mb-3">
-                  <svg
-                    className="w-7 h-7 text-[#1E5642]"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <p className="font-bold text-[#1A1A1A] text-[17px]">
-                  Thêm bàn thành công
-                </p>
-              </div>
-
+            /* Màn hình mã QR riêng của bàn chuẩn Figma (UC 4.2) */
+            <div className="flex flex-col items-center pt-[135px]">
               {/* Số bàn */}
               <h3 className="font-bold text-[18px] text-[#22201C] mb-3">
                 Bàn {createdTable.id}
@@ -191,7 +181,7 @@ export const AddTablePage: React.FC = () => {
                 type="button"
                 onClick={handleDownloadQr}
                 disabled={isDownloading}
-                className="px-8 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm mt-6 disabled:opacity-75"
+                className="px-8 py-2.5 rounded-full bg-[#2F5D50] text-white font-bold text-[15px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm mt-8 disabled:opacity-75"
               >
                 {isDownloading
                   ? "Đang lưu..."
@@ -203,6 +193,15 @@ export const AddTablePage: React.FC = () => {
           )
         )}
       </div>
+
+      {/* Pop-up thông báo Thêm bàn thành công chuẩn Figma (UC 4.2) */}
+      <ModalConfirm
+        isOpen={showSuccessModal}
+        type="success"
+        message="Thêm bàn thành công"
+        position="top"
+        onClose={() => setShowSuccessModal(false)}
+      />
 
       {/* Modal báo lỗi hệ thống */}
       <ModalConfirm

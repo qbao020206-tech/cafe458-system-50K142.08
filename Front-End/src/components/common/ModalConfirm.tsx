@@ -5,6 +5,7 @@ interface ModalConfirmProps {
   type: "error" | "success";
   message?: string | null;
   onClose?: () => void;
+  position?: "center" | "top";
 }
 
 export const ModalConfirm: React.FC<ModalConfirmProps> = ({
@@ -12,22 +13,25 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
   type,
   message,
   onClose,
+  position = "center",
 }) => {
   if (!isOpen || !message) return null;
 
   return (
     <div
       onClick={onClose}
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 ${
+      className={`fixed inset-0 z-50 flex ${
+        position === "top" ? "items-start pt-[135px]" : "items-center"
+      } justify-center bg-black/40 px-6 ${
         onClose ? "cursor-pointer" : ""
       }`}
     >
       <div
         onClick={onClose ? onClose : (e) => e.stopPropagation()}
-        className="bg-white w-[280px] max-w-[85%] rounded-2xl p-6 shadow-2xl border border-black flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-150"
+        className="bg-white w-[280px] max-w-[85%] rounded-2xl p-5 shadow-2xl border border-black flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-150"
       >
         {type === "success" ? (
-          <div className="w-14 h-14 rounded-full border-2 border-[#1E5642] flex items-center justify-center mb-4">
+          <div className="w-14 h-14 rounded-full border-2 border-[#1E5642] flex items-center justify-center mb-3">
             <svg
               className="w-7 h-7 text-[#1E5642]"
               fill="none"
@@ -68,7 +72,7 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
           </svg>
         )}
 
-        <p className="font-bold text-[#1A1A1A] text-[15px] leading-snug whitespace-pre-line">
+        <p className="font-bold text-[#1A1A1A] text-[16px] leading-snug whitespace-pre-line">
           {message}
         </p>
       </div>
