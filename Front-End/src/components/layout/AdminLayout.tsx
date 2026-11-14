@@ -256,7 +256,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           onClick={() => navigate("/admin")}
           className={`flex-1 flex flex-col items-center justify-center transition-colors cursor-pointer ${
             isHomeActive
-              ? "bg-[#D1342C] text-white"
+              ? "bg-[#B42A23] text-white"
               : "text-[#666666] hover:text-[#22201C]"
           }`}
         >
@@ -265,13 +265,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
+            <path d="M3.5 10.5L12 3.5l8.5 7V20a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 20v-9.5z" />
+            <path d="M9.5 21.5v-4.5a2.5 2.5 0 0 1 5 0v4.5" />
           </svg>
           <span className="text-[11px] font-medium leading-none">Trang chủ</span>
         </button>
@@ -282,7 +281,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           onClick={() => navigate("/admin/orders")}
           className={`flex-1 flex flex-col items-center justify-center transition-colors cursor-pointer ${
             isOrdersActive
-              ? "bg-[#D1342C] text-white"
+              ? "bg-[#B42A23] text-white"
               : "text-[#666666] hover:text-[#22201C]"
           }`}
         >
@@ -291,13 +290,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            />
+            <rect x="5" y="4" width="14" height="17" rx="2.5" />
+            <path d="M9 4.5V3a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 3v1.5" />
+            <circle cx="8.5" cy="9" r="0.75" fill="currentColor" stroke="none" />
+            <line x1="11" y1="9" x2="15.5" y2="9" />
+            <circle cx="8.5" cy="13" r="0.75" fill="currentColor" stroke="none" />
+            <line x1="11" y1="13" x2="15.5" y2="13" />
+            <circle cx="8.5" cy="17" r="0.75" fill="currentColor" stroke="none" />
+            <line x1="11" y1="17" x2="15.5" y2="17" />
           </svg>
           <span className="text-[11px] font-medium leading-none">Đơn hàng</span>
         </button>
@@ -308,22 +312,24 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           onClick={() => navigate("/admin/menu")}
           className={`flex-1 flex flex-col items-center justify-center transition-colors cursor-pointer ${
             isMenuActive
-              ? "bg-[#D1342C] text-white"
+              ? "bg-[#B42A23] text-white"
               : "text-[#666666] hover:text-[#22201C]"
           }`}
         >
           <svg
             className="w-5 h-5 mb-0.5"
+            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            viewBox="0 0 24 24"
             strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <line x1="8" y1="5" x2="8" y2="7" />
-            <line x1="12" y1="5" x2="12" y2="7" />
-            <line x1="16" y1="5" x2="16" y2="7" />
-            <path d="M5 9h14v7a4 4 0 01-4 4H9a4 4 0 01-4-4V9z" />
-            <path d="M19 11h1a2.5 2.5 0 010 5h-1" />
+            <line x1="8.5" y1="4.5" x2="8.5" y2="7" />
+            <line x1="12" y1="4" x2="12" y2="7" />
+            <line x1="15.5" y1="4.5" x2="15.5" y2="7" />
+            <path d="M5.5 8.5h11v6.5a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4v-6.5z" />
+            <path d="M16.5 10.5h1.5a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-1.5" />
           </svg>
           <span className="text-[11px] font-medium leading-none">Menu</span>
         </button>
@@ -334,7 +340,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           onClick={() => navigate("/admin/tables")}
           className={`flex-1 flex flex-col items-center justify-center transition-colors cursor-pointer ${
             isTablesActive
-              ? "bg-[#D1342C] text-white"
+              ? "bg-[#B42A23] text-white"
               : "text-[#666666] hover:text-[#22201C]"
           }`}
         >
@@ -343,13 +349,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 8h16M7 8a5 5 0 0110 0M12 8v10m-4 0h8"
-            />
+            <ellipse cx="12" cy="7" rx="8" ry="3.2" />
+            <line x1="12" y1="10.2" x2="12" y2="18" />
+            <ellipse cx="12" cy="19.2" rx="3.5" ry="1.5" />
           </svg>
           <span className="text-[11px] font-medium leading-none">Bàn</span>
         </button>
@@ -360,7 +366,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           onClick={() => navigate("/admin/revenue")}
           className={`flex-1 flex flex-col items-center justify-center transition-colors cursor-pointer ${
             isRevenueActive
-              ? "bg-[#D1342C] text-white"
+              ? "bg-[#B42A23] text-white"
               : "text-[#666666] hover:text-[#22201C]"
           }`}
         >
@@ -369,13 +375,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-            />
+            <path d="M3 13l5-6 5 5 8-8.5" />
+            <line x1="3" y1="16" x2="3" y2="21" />
+            <line x1="9" y1="13" x2="9" y2="21" />
+            <line x1="15" y1="17" x2="15" y2="21" />
+            <line x1="21" y1="9" x2="21" y2="21" />
           </svg>
           <span className="text-[11px] font-medium leading-none">Doanh thu</span>
         </button>
