@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -34,19 +35,46 @@ class Settings(BaseSettings):
 
     @property
     def primary_frontend_url(self) -> str:
-        """Lấy URL frontend chính để in mã QR (ưu tiên domain production https://... nếu có nhiều url ngăn cách bởi dấu phẩy)."""
-        raw = (self.frontend_base_url or "http://localhost:5173").strip()
-        origins = [u.strip().rstrip("/") for u in raw.split(",") if u.strip()]
-        if not origins:
-            return "http://localhost:5173"
-        chosen = origins[0]
-        for o in origins:
-            if o.startswith("https://") or ("vercel.app" in o and "localhost" not in o):
-                chosen = o
+        """Lấy URL frontend chính để in mã QR. Tự động làm sạch các lỗi dán nhầm key=value hoặc sai format giao thức."""
+        raw = (self.frontend_base_url or "").strip().strip("\"'")
+        if "=" in raw:
+            raw = raw.split("=", 1)[-1].strip().strip("\"'")
+
+        parts = [p.strip().rstrip("/") for p in raw.split(",") if p.strip()]
+        chosen = parts[0] if parts else "http://localhost:5173"
+        for p in parts:
+            if "vercel.app" in p or "https://" in p:
+                chosen = p
                 break
+
+        if "=" in chosen:
+            chosen = chosen.split("=", 1)[-1].strip().strip("\"'")
+
+        # Khắc phục trường hợp thiếu dấu hai chấm (https// hoặc http//)
+        chosen = re.sub(r"^(https?)//+", r"\1://", chosen)
+        chosen = re.sub(r"^(https?):/+", r"\1://", chosen)
+
+        # Nếu chứa domain vercel.app
+        vercel_match = re.search(r"([a-zA-Z0-9-]+\.vercel\.app)", chosen)
+        if vercel_match:
+            return f"https://{vercel_match.group(1)}"
+
+        # Nếu là localhost
+        if "localhost" in chosen:
+            port_match = re.search(r":(\d+)", chosen)
+            port = port_match.group(1) if port_match else "5173"
+            return f"http://localhost:{port}"
+
+        domain_match = re.search(r"(https?://)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", chosen)
+        if domain_match:
+            host = domain_match.group(2)
+            scheme = domain_match.group(1) or "https://"
+            return f"{scheme.rstrip('/')}//{host}"
+
         if not chosen.startswith("http://") and not chosen.startswith("https://"):
             chosen = f"https://{chosen}"
-        return chosen
+
+        return chosen.rstrip("/")
 
     @property
     def sqlalchemy_database_url(self) -> str:

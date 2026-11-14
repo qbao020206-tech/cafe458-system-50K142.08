@@ -84,7 +84,15 @@ def test_primary_frontend_url_and_customer_menu_url():
     s3 = Settings(frontend_base_url="https://cafe458-system-50-k142-08.vercel.app/ , http://localhost:5173/")
     assert s3.primary_frontend_url == "https://cafe458-system-50-k142-08.vercel.app"
 
+    # Case 4: Malformed input with key=value or missing colon
+    s4 = Settings(frontend_base_url="https://frontend_base_url=https//cafe458-system-50-k142-08.vercel.app")
+    assert s4.primary_frontend_url == "https://cafe458-system-50-k142-08.vercel.app"
+
+    s5 = Settings(frontend_base_url="frontend_base_url=https//cafe458-system-50-k142-08.vercel.app")
+    assert s5.primary_frontend_url == "https://cafe458-system-50-k142-08.vercel.app"
+
     # Verify customer_menu_url output structure
     url = customer_menu_url("wREeOILiGzdPzzTp")
     assert "/menu?qr=wREeOILiGzdPzzTp" in url
     assert "," not in url
+    assert "frontend_base_url" not in url
