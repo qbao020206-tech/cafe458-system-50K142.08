@@ -220,7 +220,7 @@ export const AddDishPage: React.FC = () => {
                     : "border border-[#CCCCCC] focus:border-[#2F5D50]"
                 }`}
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[15px] font-bold text-[#22201C]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[15px] font-normal text-[#22201C] pointer-events-none">
                 đ
               </span>
             </div>
