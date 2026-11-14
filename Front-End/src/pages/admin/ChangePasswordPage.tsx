@@ -162,26 +162,22 @@ export const ChangePasswordPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowOldPassword(!showOldPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 active:scale-90 transition-transform cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-[#666666] hover:text-[#22201C] active:scale-90 transition-transform cursor-pointer"
                 aria-label={showOldPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 <svg
                   className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.8"
+                  viewBox="0 0 32 30"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
+                  <path d="M 2 9 C 7 0.5 25 0.5 30 9" />
+                  <path d="M 2 17.5 C 7 5 25 5 30 17.5 C 25 30 7 30 2 17.5 Z" />
+                  <circle cx="16" cy="17.5" r="4.2" />
+                  {showOldPassword && <line x1="3" y1="27" x2="29" y2="3" />}
                 </svg>
               </button>
             </div>
@@ -214,26 +210,22 @@ export const ChangePasswordPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 active:scale-90 transition-transform cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-[#666666] hover:text-[#22201C] active:scale-90 transition-transform cursor-pointer"
                 aria-label={showNewPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 <svg
                   className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.8"
+                  viewBox="0 0 32 30"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
+                  <path d="M 2 9 C 7 0.5 25 0.5 30 9" />
+                  <path d="M 2 17.5 C 7 5 25 5 30 17.5 C 25 30 7 30 2 17.5 Z" />
+                  <circle cx="16" cy="17.5" r="4.2" />
+                  {showNewPassword && <line x1="3" y1="27" x2="29" y2="3" />}
                 </svg>
               </button>
             </div>
@@ -266,26 +258,22 @@ export const ChangePasswordPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 active:scale-90 transition-transform cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-[#666666] hover:text-[#22201C] active:scale-90 transition-transform cursor-pointer"
                 aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 <svg
                   className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.8"
+                  viewBox="0 0 32 30"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
+                  <path d="M 2 9 C 7 0.5 25 0.5 30 9" />
+                  <path d="M 2 17.5 C 7 5 25 5 30 17.5 C 25 30 7 30 2 17.5 Z" />
+                  <circle cx="16" cy="17.5" r="4.2" />
+                  {showConfirmPassword && <line x1="3" y1="27" x2="29" y2="3" />}
                 </svg>
               </button>
             </div>
