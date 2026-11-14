@@ -137,11 +137,16 @@ export const MenuListPage: React.FC = () => {
           <div className="space-y-3.5 pb-6">
             {dishes.map((dish) => {
               const isHidden = dish.trang_thai === "Ẩn";
+              const isSelectedForDelete = dishToDelete?.ma_mon === dish.ma_mon;
 
               return (
                 <div
                   key={dish.ma_mon}
-                  className="bg-white rounded-[20px] p-4 shadow-sm border border-[#E8E0D2]"
+                  className={`bg-white rounded-[20px] shadow-sm transition-all ${
+                    isSelectedForDelete
+                      ? "border-2 border-black p-[15px]"
+                      : "border border-[#E8E0D2] p-4"
+                  }`}
                 >
                   {/* Hàng thông tin món: ảnh, tên, giá, nhãn trạng thái */}
                   <div className="flex items-center justify-between">
@@ -214,7 +219,9 @@ export const MenuListPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDishToDelete(dish)}
-                      className="h-[40px] rounded-[12px] bg-white border border-[#8A2424] text-[#8A2424] font-semibold text-[14px] flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 transition-all hover:bg-red-50"
+                      className={`h-[40px] rounded-[12px] border border-[#8A2424] text-[#8A2424] font-semibold text-[14px] flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 transition-all hover:bg-red-50 ${
+                        isSelectedForDelete ? "bg-red-50/60" : "bg-white"
+                      }`}
                     >
                       <svg
                         className="w-4 h-4 text-[#8A2424]"

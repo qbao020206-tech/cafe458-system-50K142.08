@@ -25,6 +25,7 @@ export const ChangePasswordPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [wrongOldPasswordModal, setWrongOldPasswordModal] = useState<boolean>(false);
   const [saveErrorModal, setSaveErrorModal] = useState<boolean>(false);
+  const [mismatchModal, setMismatchModal] = useState<boolean>(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +57,10 @@ export const ChangePasswordPage: React.FC = () => {
       return;
     }
 
-    // Kiểm tra hai mật khẩu mới có trùng khớp không (BR-UC6-03)
+    // Kiểm tra hai mật khẩu mới có trùng khớp không (BR-UC6-03, Figma UC 6)
     if (newPassword !== confirmPassword) {
-      setConfirmPassError("Mật khẩu mới và mật khẩu nhập lại không giống nhau!");
+      setConfirmPassError(null);
+      setMismatchModal(true);
       return;
     }
 
@@ -83,14 +85,23 @@ export const ChangePasswordPage: React.FC = () => {
         apiErr.message === "Mật khẩu cũ không đúng!"
       ) {
         setWrongOldPasswordModal(true);
+      } else if (
+        apiErr.code === "PASSWORD_MISMATCH" ||
+        apiErr.message?.includes("không giống nhau")
+      ) {
+        setConfirmPassError(null);
+        setMismatchModal(true);
       } else if (apiErr.field === "mat_khau_cu") {
         setOldPassError(apiErr.message || "Không được để trống!");
       } else if (apiErr.field === "mat_khau_moi") {
         setNewPassError(apiErr.message || "Không được để trống!");
       } else if (apiErr.field === "nhap_lai_mat_khau_moi") {
-        setConfirmPassError(
-          apiErr.message || "Mật khẩu mới và mật khẩu nhập lại không giống nhau!"
-        );
+        if (apiErr.message?.includes("không giống nhau")) {
+          setConfirmPassError(null);
+          setMismatchModal(true);
+        } else {
+          setConfirmPassError(apiErr.message || "Không được để trống!");
+        }
       } else {
         setSaveErrorModal(true);
       }
@@ -299,6 +310,14 @@ export const ChangePasswordPage: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {/* Popup lỗi hai mật khẩu mới không trùng khớp (Figma UC 6) */}
+      <ModalConfirm
+        isOpen={mismatchModal}
+        type="error"
+        message={"Mật khẩu mới và mật khẩu\nnhập lại không giống nhau!"}
+        onClose={() => setMismatchModal(false)}
+      />
 
       {/* Popup lỗi mật khẩu cũ sai (Bảng 125) */}
       <ModalConfirm
