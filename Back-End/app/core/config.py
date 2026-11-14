@@ -33,6 +33,22 @@ class Settings(BaseSettings):
     bank_account_name: SecretStr | None = None
 
     @property
+    def primary_frontend_url(self) -> str:
+        """Lấy URL frontend chính để in mã QR (ưu tiên domain production https://... nếu có nhiều url ngăn cách bởi dấu phẩy)."""
+        raw = (self.frontend_base_url or "http://localhost:5173").strip()
+        origins = [u.strip().rstrip("/") for u in raw.split(",") if u.strip()]
+        if not origins:
+            return "http://localhost:5173"
+        chosen = origins[0]
+        for o in origins:
+            if o.startswith("https://") or ("vercel.app" in o and "localhost" not in o):
+                chosen = o
+                break
+        if not chosen.startswith("http://") and not chosen.startswith("https://"):
+            chosen = f"https://{chosen}"
+        return chosen
+
+    @property
     def sqlalchemy_database_url(self) -> str:
         """Return a SQLAlchemy async URL without exposing it in settings reprs."""
         url = self.database_url.get_secret_value()

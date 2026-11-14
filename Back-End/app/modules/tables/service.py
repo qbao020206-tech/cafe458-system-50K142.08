@@ -18,7 +18,8 @@ def _new_qr_token() -> str:
 
 def customer_menu_url(qr_token: str) -> str:
     settings = get_settings()
-    return f"{settings.frontend_base_url.rstrip('/')}/menu?qr={qr_token}"
+    base_url = settings.primary_frontend_url.rstrip("/")
+    return f"{base_url}/menu?qr={qr_token}"
 
 
 async def list_tables(session: AsyncSession) -> list[CafeTable]:

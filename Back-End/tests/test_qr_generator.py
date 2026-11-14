@@ -66,3 +66,25 @@ def test_generate_qr_png_data_url():
     png_bytes = base64.b64decode(raw_b64)
     png_magic = b"\x89PNG\r\n\x1a\n"
     assert png_bytes[:8] == png_magic
+
+
+def test_primary_frontend_url_and_customer_menu_url():
+    from app.core.config import Settings
+    from app.modules.tables.service import customer_menu_url
+
+    # Case 1: Multi-origin with Vercel and localhost (separated by comma)
+    s1 = Settings(frontend_base_url="https://cafe458-system-50-k142-08.vercel.app,http//localhost:5173")
+    assert s1.primary_frontend_url == "https://cafe458-system-50-k142-08.vercel.app"
+
+    # Case 2: Only localhost
+    s2 = Settings(frontend_base_url="http://localhost:5173")
+    assert s2.primary_frontend_url == "http://localhost:5173"
+
+    # Case 3: Trailing slashes
+    s3 = Settings(frontend_base_url="https://cafe458-system-50-k142-08.vercel.app/ , http://localhost:5173/")
+    assert s3.primary_frontend_url == "https://cafe458-system-50-k142-08.vercel.app"
+
+    # Verify customer_menu_url output structure
+    url = customer_menu_url("wREeOILiGzdPzzTp")
+    assert "/menu?qr=wREeOILiGzdPzzTp" in url
+    assert "," not in url
