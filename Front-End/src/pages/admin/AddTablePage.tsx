@@ -130,18 +130,18 @@ export const AddTablePage: React.FC = () => {
                   </p>
                 )}
 
-                {/* Hai nút Hủy & Lưu chuẩn Figma */}
-                <div className="flex items-center justify-center gap-5 mt-7">
+                {/* Hai nút Hủy & Lưu chuẩn Figma (căn phải, kích thước gọn gàng, bo góc đồng bộ) */}
+                <div className="flex items-center justify-end gap-6 mt-9">
                   <button
                     type="button"
                     onClick={() => navigate("/admin/tables")}
-                    className="w-[110px] h-[46px] rounded-[14px] bg-white border-2 border-[#D1342C] text-[#D1342C] font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+                    className="w-[84px] h-[42px] rounded-[12px] bg-white border-2 border-[#D1342C] text-[#D1342C] font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="w-[110px] h-[46px] rounded-[14px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+                    className="w-[84px] h-[42px] rounded-[12px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
                   >
                     Lưu
                   </button>
