@@ -63,7 +63,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6EE] text-[#22201C] w-[390px] max-w-[390px] mx-auto relative flex flex-col font-['Be_Vietnam_Pro'] antialiased shadow-sm select-none overflow-hidden">
+    <div className="min-h-screen bg-[#EDE4D7] bg-[url('/login-bg.png')] bg-cover bg-bottom bg-no-repeat text-[#22201C] w-[390px] max-w-[390px] mx-auto relative flex flex-col font-['Be_Vietnam_Pro'] antialiased shadow-sm select-none overflow-hidden">
       {/* Header đỏ chuẩn Figma: cao 88px, Tiêu đề Đăng nhập căn giữa */}
       <header className="bg-[#D1342C] text-white h-[88px] px-[16px] flex items-center justify-center sticky top-0 z-30 flex-shrink-0">
         <h1 className="text-[24px] font-bold tracking-tight text-white leading-none">
@@ -175,27 +175,8 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Hình nền mờ ly cà phê phía dưới chuẩn Figma (Bảng 49 STT 7) */}
-        <div className="w-full flex justify-center items-end opacity-20 pointer-events-none mt-12 pb-4">
-          <svg
-            className="w-72 h-44 text-[#8C7A6B]"
-            viewBox="0 0 240 140"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Đĩa lót ly */}
-            <ellipse cx="120" cy="120" rx="90" ry="14" />
-            {/* Thân ly to */}
-            <path d="M50 40h140v50a40 40 0 0 1-40 40h-60a40 40 0 0 1-40-40V40z" />
-            {/* Quai ly */}
-            <path d="M190 55h16a18 18 0 0 1 0 36h-16" />
-            {/* Khói cà phê */}
-            <path d="M90 20c0-6 6-10 6-16m24 16c0-6 6-10 6-16m24 16c0-6 6-10 6-16" />
-          </svg>
-        </div>
+        {/* Khoảng trống để lộ hình nền ly cà phê minh họa chuẩn Figma (Bảng 49 STT 7) */}
+        <div className="w-full flex-1 min-h-[220px] pointer-events-none" />
       </main>
 
       {/* Popup lỗi đăng nhập không thành công (Bảng 53) */}
