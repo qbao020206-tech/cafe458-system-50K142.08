@@ -63,7 +63,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDE4D7] bg-[url('/login-bg.png')] bg-cover bg-bottom bg-no-repeat text-[#22201C] w-[390px] max-w-[390px] mx-auto relative flex flex-col font-['Be_Vietnam_Pro'] antialiased shadow-sm select-none overflow-hidden">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#22201C] w-[390px] max-w-[390px] mx-auto relative flex flex-col font-['Be_Vietnam_Pro'] antialiased shadow-sm select-none overflow-hidden">
       {/* Header đỏ chuẩn Figma: cao 88px, Tiêu đề Đăng nhập căn giữa */}
       <header className="bg-[#D1342C] text-white h-[88px] px-[16px] flex items-center justify-center sticky top-0 z-30 flex-shrink-0">
         <h1 className="text-[24px] font-bold tracking-tight text-white leading-none">
@@ -175,8 +175,14 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Khoảng trống để lộ hình nền ly cà phê minh họa chuẩn Figma (Bảng 49 STT 7) */}
-        <div className="w-full flex-1 min-h-[220px] pointer-events-none" />
+        {/* Hình nền ly cà phê phía dưới chuẩn Figma (Bảng 49 STT 7) */}
+        <div className="w-[calc(100%+40px)] -mx-[20px] pointer-events-none select-none mt-auto flex-shrink-0">
+          <img
+            src="/login-cup.png"
+            alt="Hình nền ly cà phê"
+            className="w-full object-bottom block"
+          />
+        </div>
       </main>
 
       {/* Popup lỗi đăng nhập không thành công (Bảng 53) */}
