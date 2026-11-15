@@ -178,7 +178,7 @@ export const MenuListPage: React.FC = () => {
                     {/* Nhãn trạng thái */}
                     <div className="flex-shrink-0">
                       {isHidden ? (
-                        <span className="px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[#E8E8E8] text-[#4B5563]">
+                        <span className="px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[#E5DDCB] text-[#22201C]">
                           Ẩn
                         </span>
                       ) : (
