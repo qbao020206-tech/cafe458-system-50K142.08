@@ -298,7 +298,7 @@ export const AddDishPage: React.FC = () => {
               disabled={submitting}
               className="w-full h-[48px] rounded-[12px] bg-[#2F5D50] text-white font-bold text-[16px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm disabled:opacity-60"
             >
-              {submitting ? "Đang lưu..." : "Lưu"}
+              Lưu
             </button>
           </div>
         </form>

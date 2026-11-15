@@ -173,6 +173,9 @@ export const CheckoutPage: React.FC = () => {
                       maxLength={200}
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
+                      onBlur={() => {
+                        window.scrollTo({ top: window.scrollY, behavior: "smooth" });
+                      }}
                       placeholder={MESSAGES.NOTE_PLACEHOLDER}
                       className="w-full text-[14px] text-[#22201C] placeholder-[#999999] focus:outline-none resize-none bg-transparent"
                     />
