@@ -211,6 +211,5 @@ git push origin main
 
 ## 📞 10. LIÊN HỆ & THÔNG TIN DỰ ÁN
 
-- **Đơn vị:** Khoa Tin học Quản trị — Trường Đại học Kinh tế, Đại học Đà Nẵng
-- **Học phần:** Phân tích Thiết kế Hệ thống Thông tin (50K142.08)
+- **Học phần:** Phân tích Thiết kế Hệ thống Thông tin (50K14.2)
 - **Kho lưu trữ GitHub:** [qbao020206-tech/cafe458-system-50K142.08](https://github.com/qbao020206-tech/cafe458-system-50K142.08)
