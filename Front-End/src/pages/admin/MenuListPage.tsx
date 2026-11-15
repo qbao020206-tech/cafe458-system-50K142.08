@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AdminLayout } from "../../components/layout/AdminLayout";
 import { Dish } from "../../types/menu";
@@ -29,6 +29,18 @@ export const MenuListPage: React.FC = () => {
     type: "success",
     message: "",
   });
+
+  // Trạng thái đang chuyển hướng sang màn hình Thêm món (UC 3.2: nút chuyển sang màu nhạt 1-2s)
+  const [isNavigatingToAdd, setIsNavigatingToAdd] = useState<boolean>(false);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (navTimerRef.current) {
+        clearTimeout(navTimerRef.current);
+      }
+    };
+  }, []);
 
   const fetchDishes = useCallback(async () => {
     try {
@@ -97,6 +109,14 @@ export const MenuListPage: React.FC = () => {
     }
   };
 
+  const handleAddDish = () => {
+    if (isNavigatingToAdd) return;
+    setIsNavigatingToAdd(true);
+    navTimerRef.current = setTimeout(() => {
+      navigate("/admin/menu/add");
+    }, 1200);
+  };
+
   return (
     <AdminLayout
       title="Quản lý menu"
@@ -112,8 +132,13 @@ export const MenuListPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => navigate("/admin/menu/add")}
-            className="h-[38px] px-4 rounded-full bg-[#2F5D50] text-white text-[14px] font-medium flex items-center space-x-1.5 shadow-sm cursor-pointer active:scale-95 transition-transform"
+            disabled={isNavigatingToAdd}
+            onClick={handleAddDish}
+            className={`h-[38px] px-4 rounded-full text-white text-[14px] font-medium flex items-center space-x-1.5 shadow-sm transition-all ${
+              isNavigatingToAdd
+                ? "bg-[#94A99F] cursor-not-allowed"
+                : "bg-[#2F5D50] hover:bg-[#23473d] active:scale-95 cursor-pointer"
+            }`}
           >
             <span className="text-[17px] leading-none mb-0.5">+</span>
             <span>Thêm món</span>
