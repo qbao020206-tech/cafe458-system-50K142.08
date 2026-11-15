@@ -2,7 +2,7 @@
 
 > **Dự án:** Trang web hệ thống bán hàng quán Cà phê 458  
 > **Mã học phần:** 50K142.08 — Phân tích Thiết kế Hệ thống Thông tin  
-> **Địa chỉ quán thực tế:** 458 Trưng Nữ Vương, Hải Châu, Đà Nẵng  
+> **Địa chỉ quán thực tế:** 458 Trưng Nữ Vương, Hải Châu, Đà Nẵng
 
 ---
 
@@ -10,10 +10,10 @@
 
 Hệ thống web đã được triển khai hoàn tất và hoạt động trực tuyến với 2 phân hệ người dùng chính:
 
-| Phân hệ Web | Đối tượng sử dụng | Đường dẫn trực tiếp (Web Link) | Mô tả & Thao tác |
-| :--- | :---: | :--- | :--- |
-| **Phần 1: Giao diện Khách hàng** | Khách tại quán | [https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03) | Khách quét mã QR tại bàn để xem thực đơn, chọn món, ghi chú và thanh toán tại chỗ.<br>*(Các bàn thử nghiệm khác: [Bàn 01](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban01) • [Bàn 05](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban05))* |
-| **Phần 2: Giao diện Chủ quán** | Chủ quán / Quản trị | [https://cafe458-system-50-k142-08.vercel.app/login](https://cafe458-system-50-k142-08.vercel.app/login) | Màn hình đăng nhập quản trị hệ thống: duyệt đơn hàng thời gian thực, quản lý menu món, sơ đồ bàn và theo dõi doanh thu. |
+| Phân hệ Web                      |  Đối tượng sử dụng  | Đường dẫn trực tiếp (Web Link)                                                                                           | Mô tả & Thao tác                                                                                                                                                                                                                                               |
+| :------------------------------- | :-----------------: | :----------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Phần 1: Giao diện Khách hàng** |   Khách tại quán    | [https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03) | Khách quét mã QR tại bàn để xem thực đơn, chọn món, ghi chú và thanh toán tại chỗ.<br>_(Các bàn thử nghiệm khác: [Bàn 01](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban01) • [Bàn 05](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban05))_ |
+| **Phần 2: Giao diện Chủ quán**   | Chủ quán / Quản trị | [https://cafe458-system-50-k142-08.vercel.app/login](https://cafe458-system-50-k142-08.vercel.app/login)                 | Màn hình đăng nhập quản trị hệ thống: duyệt đơn hàng thời gian thực, quản lý menu món, sơ đồ bàn và theo dõi doanh thu.                                                                                                                                        |
 
 ---
 
@@ -21,11 +21,9 @@ Hệ thống web đã được triển khai hoàn tất và hoạt động trự
 
 Sử dụng tài khoản dưới đây để đăng nhập vào phân hệ quản trị của Chủ quán tại liên kết `/login`:
 
-| Loại tài khoản | Tên đăng nhập (`ten_dang_nhap`) | Mật khẩu (`mat_khau`) | Quyền hạn / Mục đích sử dụng |
-| :--- | :---: | :---: | :--- |
-| **Chủ quán chính thức** | `admin_cafe458` | `MatKhauChuQuan458!` | **Toàn quyền quản trị:** Xem & duyệt đơn, quản lý thực đơn, cấp mã QR bàn, xem báo cáo doanh thu, đổi mật khẩu. |
-| **Quản trị kiểm thử** | `admin` | `Admin@123456` | Tài khoản phụ hỗ trợ đánh giá và kiểm thử hệ thống. |
-| **Tài khoản Offline / Mock** | `chuquan458` | `123456` | Tự động sử dụng khi chạy Front-End độc lập không mở kết nối API máy chủ. |
+| Loại tài khoản          | Tên đăng nhập (`ten_dang_nhap`) | Mật khẩu (`mat_khau`) | Quyền hạn / Mục đích sử dụng                                                                                    |
+| :---------------------- | :-----------------------------: | :-------------------: | :-------------------------------------------------------------------------------------------------------------- |
+| **Chủ quán chính thức** |         `admin_cafe458`         | `MatKhauChuQuan458!`  | **Toàn quyền quản trị:** Xem & duyệt đơn, quản lý thực đơn, cấp mã QR bàn, xem báo cáo doanh thu, đổi mật khẩu. |
 
 > 📌 **Lưu ý bảo mật:** Mật khẩu trong cơ sở dữ liệu được mã hóa một chiều bằng thuật toán `bcrypt`. Phiên đăng nhập được duy trì an toàn thông qua JWT Bearer Token.
 
@@ -34,31 +32,34 @@ Sử dụng tài khoản dưới đây để đăng nhập vào phân hệ quả
 ## 💳 3. THÔNG TIN THANH TOÁN VIETQR CỦA QUÁN
 
 Khi khách hàng chọn phương thức thanh toán **Chuyển khoản**, hệ thống tự động sinh mã VietQR (NAPAS 247) chuẩn EMVCo:
-* **Ngân hàng:** `VPBank` (Ngân hàng TMCP Việt Nam Thịnh Vượng — Mã BIN: `970432`)
-* **Số tài khoản:** `616108751`
-* **Chủ tài khoản:** `HKD CA PHE 458`
-* **Nội dung thanh toán:** Tự động điền theo cú pháp `Bàn {Số_bàn}` (Ví dụ: `Bàn 03`)
-* **Số tiền:** Tự động khớp chính xác 100% tổng giá trị đơn hàng.
+
+- **Ngân hàng:** `VPBank` (Ngân hàng TMCP Việt Nam Thịnh Vượng — Mã BIN: `970432`)
+- **Số tài khoản:** `616108751`
+- **Chủ tài khoản:** `HKD CA PHE 458`
+- **Nội dung thanh toán:** Tự động điền theo cú pháp `Bàn {Số_bàn}` (Ví dụ: `Bàn 03`)
+- **Số tiền:** Tự động khớp chính xác 100% tổng giá trị đơn hàng.
 
 ---
 
 ## 📖 4. GIỚI THIỆU TỔNG QUAN HỆ THỐNG & USE CASES
 
 Hệ thống cung cấp giải pháp toàn diện cho hoạt động kinh doanh của quán Cà phê 458:
-* **Khách hàng:** Quét mã QR tại bàn bằng điện thoại thông minh để xem món, gọi món, chọn phương thức thanh toán (VietQR hoặc Tiền mặt) mà không cần cài đặt ứng dụng.
-* **Chủ quán:** Nhận thông báo âm thanh và đếm số lượng đơn mới theo thời gian thực (chu kỳ 5 giây), xác nhận nhận tiền, cập nhật món và giá bán kèm hình ảnh tải lên đám mây, cấp mã QR bàn mới và xem báo cáo doanh thu.
+
+- **Khách hàng:** Quét mã QR tại bàn bằng điện thoại thông minh để xem món, gọi món, chọn phương thức thanh toán (VietQR hoặc Tiền mặt) mà không cần cài đặt ứng dụng.
+- **Chủ quán:** Nhận thông báo âm thanh và đếm số lượng đơn mới theo thời gian thực (chu kỳ 5 giây), xác nhận nhận tiền, cập nhật món và giá bán kèm hình ảnh tải lên đám mây, cấp mã QR bàn mới và xem báo cáo doanh thu.
 
 ### Danh mục 8 Use Cases & 16 Màn hình:
-| STT | Use Case | Tên chức năng | Phân hệ | Màn hình tương ứng (UI) |
-| :---: | :--- | :--- | :---: | :--- |
-| **1** | **UC 1** | Đăng nhập hệ thống | Chủ quán | `U5: /login` |
-| **2** | **UC 2** | Quản lý gọi món & đơn hàng | Chủ quán | `U7: /admin/orders`, `U8: /admin/orders/:id` |
-| **3** | **UC 3** | Quản lý thực đơn (Menu) | Chủ quán | `U9: /admin/menu`, `U10: /admin/menu/add`, `U11: /admin/menu/edit/:id` |
-| **4** | **UC 4** | Quản lý sơ đồ bàn & mã QR | Chủ quán | `U12: /admin/tables`, `U13: /admin/tables/add`, Chi tiết bàn |
-| **5** | **UC 5** | Quản lý & báo cáo doanh thu | Chủ quán | `U14: /admin/revenue`, `U15: /admin/revenue/detail` |
-| **6** | **UC 6** | Đổi mật khẩu tài khoản | Chủ quán | `U16: /admin/change-password` |
+
+|  STT  | Use Case | Tên chức năng                |  Phân hệ   | Màn hình tương ứng (UI)                                                           |
+| :---: | :------- | :--------------------------- | :--------: | :-------------------------------------------------------------------------------- |
+| **1** | **UC 1** | Đăng nhập hệ thống           |  Chủ quán  | `U5: /login`                                                                      |
+| **2** | **UC 2** | Quản lý gọi món & đơn hàng   |  Chủ quán  | `U7: /admin/orders`, `U8: /admin/orders/:id`                                      |
+| **3** | **UC 3** | Quản lý thực đơn (Menu)      |  Chủ quán  | `U9: /admin/menu`, `U10: /admin/menu/add`, `U11: /admin/menu/edit/:id`            |
+| **4** | **UC 4** | Quản lý sơ đồ bàn & mã QR    |  Chủ quán  | `U12: /admin/tables`, `U13: /admin/tables/add`, Chi tiết bàn                      |
+| **5** | **UC 5** | Quản lý & báo cáo doanh thu  |  Chủ quán  | `U14: /admin/revenue`, `U15: /admin/revenue/detail`                               |
+| **6** | **UC 6** | Đổi mật khẩu tài khoản       |  Chủ quán  | `U16: /admin/change-password`                                                     |
 | **7** | **UC 7** | Xem menu & đặt món qua mã QR | Khách hàng | `U1: /menu?qr=...`, `U2: /checkout`, `U3: /payment-transfer`, `U4: /payment-cash` |
-| **8** | **UC 8** | Đăng xuất khỏi hệ thống | Chủ quán | Modal xác nhận trên `AdminLayout` |
+| **8** | **UC 8** | Đăng xuất khỏi hệ thống      |  Chủ quán  | Modal xác nhận trên `AdminLayout`                                                 |
 
 ---
 
@@ -97,10 +98,10 @@ flowchart TD
     FastAPI -->|Tải ảnh món ăn| StorageBucket
 ```
 
-* **Front-End:** React 18, TypeScript 5, Vite 5, Tailwind CSS 3, React Router DOM v6, Axios, Lucide React, TanStack Query.
-* **Back-End:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (Asyncio), `asyncpg`, Alembic, PyJWT, `bcrypt`, `qrcode[pil]`.
-* **Cơ sở dữ liệu:** PostgreSQL 15+ trên Supabase với Row Level Security (RLS) cho cả 5 bảng lõi (`chu_quan`, `ban`, `mon`, `don_hang`, `chi_tiet_don`).
-* **Lưu trữ ảnh:** Supabase Object Storage bucket `menu-images`.
+- **Front-End:** React 18, TypeScript 5, Vite 5, Tailwind CSS 3, React Router DOM v6, Axios, Lucide React, TanStack Query.
+- **Back-End:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (Asyncio), `asyncpg`, Alembic, PyJWT, `bcrypt`, `qrcode[pil]`.
+- **Cơ sở dữ liệu:** PostgreSQL 15+ trên Supabase với Row Level Security (RLS) cho cả 5 bảng lõi (`chu_quan`, `ban`, `mon`, `don_hang`, `chi_tiet_don`).
+- **Lưu trữ ảnh:** Supabase Object Storage bucket `menu-images`.
 
 ---
 
@@ -138,6 +139,7 @@ cafe458-system-50K142.08/
 ## 🚀 7. HƯỚNG DẪN CÀI ĐẶT & CHẠY LOCAL (QUICK START)
 
 ### 7.1. Chạy Back-End (Terminal 1)
+
 ```bash
 cd Back-End
 
@@ -153,6 +155,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 7.2. Chạy Front-End (Terminal 2)
+
 ```bash
 cd Front-End
 
@@ -165,6 +168,7 @@ copy .env.example .env    # Trên Windows (Linux/Mac dùng: cp .env.example .env
 # Khởi chạy giao diện:
 npm run dev
 ```
+
 > 👉 Mở trình duyệt tại: **`http://localhost:5173`** (Khuyến nghị bật chế độ Responsive `F12` mô phỏng màn hình iPhone 390px để có trải nghiệm tốt nhất).
 
 ---
@@ -172,9 +176,10 @@ npm run dev
 ## 🛡️ 8. QUY TRÌNH LÀM VIỆC NHÓM TRÊN GITHUB
 
 Dự án sử dụng duy nhất nhánh **`main`** với ranh giới phân công độc lập:
-* **Dev Back-End:** Thao tác trong `Back-End/`.
-* **Dev Front-End:** Thao tác trong `Front-End/`.
-* **Tài liệu:** Thao tác trong `Document/`.
+
+- **Dev Back-End:** Thao tác trong `Back-End/`.
+- **Dev Front-End:** Thao tác trong `Front-End/`.
+- **Tài liệu:** Thao tác trong `Document/`.
 
 ```bash
 # 1. Kéo bài mới về trước khi làm
@@ -195,17 +200,17 @@ git push origin main
 
 ## ✅ 9. TRẠNG THÁI HỆ THỐNG & SẴN SÀNG PHÁT HÀNH (RELEASE READINESS)
 
-* **Build thành phẩm:** Front-End biên dịch thành công 100% với Vite 5 và TypeScript (`tsc && vite build`), hoàn toàn không có lỗi cú pháp hay thiếu kiểu dữ liệu.
-* **Định tuyến SPA:** Đã cấu hình tệp `vercel.json` phục vụ chuyển hướng toàn bộ các route sâu (`/menu?qr=...`, `/admin/orders`, `/login`) về `index.html`, ngăn ngừa lỗi `404 Not Found` khi người dùng F5 tải lại trang.
-* **Cơ sở dữ liệu & RLS:** Đã áp dụng đầy đủ Row Level Security (RLS) trên 5 bảng PostgreSQL, ràng buộc xóa mềm (Soft Delete) và Partial Unique Index chống trùng lặp dữ liệu.
-* **Kiểm thử tự động:**
-  * Front-End (`vitest`): Đạt **100% (11/11 tests pass)**.
-  * Back-End (`pytest`): Đạt **26/27 tests pass** bao phủ toàn bộ luồng nghiệp vụ xác thực, đặt món, chuyển trạng thái bàn và tính toán doanh thu.
+- **Build thành phẩm:** Front-End biên dịch thành công 100% với Vite 5 và TypeScript (`tsc && vite build`), hoàn toàn không có lỗi cú pháp hay thiếu kiểu dữ liệu.
+- **Định tuyến SPA:** Đã cấu hình tệp `vercel.json` phục vụ chuyển hướng toàn bộ các route sâu (`/menu?qr=...`, `/admin/orders`, `/login`) về `index.html`, ngăn ngừa lỗi `404 Not Found` khi người dùng F5 tải lại trang.
+- **Cơ sở dữ liệu & RLS:** Đã áp dụng đầy đủ Row Level Security (RLS) trên 5 bảng PostgreSQL, ràng buộc xóa mềm (Soft Delete) và Partial Unique Index chống trùng lặp dữ liệu.
+- **Kiểm thử tự động:**
+  - Front-End (`vitest`): Đạt **100% (11/11 tests pass)**.
+  - Back-End (`pytest`): Đạt **26/27 tests pass** bao phủ toàn bộ luồng nghiệp vụ xác thực, đặt món, chuyển trạng thái bàn và tính toán doanh thu.
 
 ---
 
 ## 📞 10. LIÊN HỆ & THÔNG TIN DỰ ÁN
 
-* **Đơn vị:** Khoa Tin học Quản trị — Trường Đại học Kinh tế, Đại học Đà Nẵng
-* **Học phần:** Phân tích Thiết kế Hệ thống Thông tin (50K142.08)
-* **Kho lưu trữ GitHub:** [qbao020206-tech/cafe458-system-50K142.08](https://github.com/qbao020206-tech/cafe458-system-50K142.08)
+- **Đơn vị:** Khoa Tin học Quản trị — Trường Đại học Kinh tế, Đại học Đà Nẵng
+- **Học phần:** Phân tích Thiết kế Hệ thống Thông tin (50K142.08)
+- **Kho lưu trữ GitHub:** [qbao020206-tech/cafe458-system-50K142.08](https://github.com/qbao020206-tech/cafe458-system-50K142.08)
