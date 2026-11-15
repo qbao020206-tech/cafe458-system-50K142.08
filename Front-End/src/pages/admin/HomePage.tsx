@@ -5,14 +5,20 @@ import { getUnconfirmedOrdersCount } from "../../services/authService";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [unconfirmedCount, setUnconfirmedCount] = useState<number>(2);
+  const [unconfirmedCount, setUnconfirmedCount] = useState<number | null>(() => {
+    const cached = sessionStorage.getItem("cafe458_unconfirmed_count");
+    return cached !== null ? Number(cached) : null;
+  });
 
   useEffect(() => {
     let isMounted = true;
     const fetchCount = async () => {
       try {
         const count = await getUnconfirmedOrdersCount();
-        if (isMounted) setUnconfirmedCount(count);
+        if (isMounted) {
+          setUnconfirmedCount(count);
+          sessionStorage.setItem("cafe458_unconfirmed_count", String(count));
+        }
       } catch {
         // bỏ qua
       }
@@ -20,9 +26,15 @@ export const HomePage: React.FC = () => {
 
     fetchCount();
     const interval = setInterval(fetchCount, 5000);
+    const handleOrderEvent = () => {
+      fetchCount();
+    };
+    window.addEventListener("admin_new_order", handleOrderEvent);
+
     return () => {
       isMounted = false;
       clearInterval(interval);
+      window.removeEventListener("admin_new_order", handleOrderEvent);
     };
   }, []);
 
@@ -68,7 +80,9 @@ export const HomePage: React.FC = () => {
                 Đơn hàng
               </h3>
               <p className="text-[13px] text-[#666666] mt-1 leading-tight">
-                {unconfirmedCount} đơn chưa xác nhận
+                {unconfirmedCount !== null
+                  ? `${unconfirmedCount} đơn chưa xác nhận`
+                  : "... đơn chưa xác nhận"}
               </p>
             </div>
           </div>
