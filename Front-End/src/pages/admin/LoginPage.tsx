@@ -20,6 +20,9 @@ export const LoginPage: React.FC = () => {
 
   // Trạng thái popup lỗi đăng nhập sai (Bảng 53)
   const [loginFailedModal, setLoginFailedModal] = useState<boolean>(false);
+  const [loginErrorMessage, setLoginErrorMessage] = useState<string>(
+    "Đăng nhập không thành công!"
+  );
 
   // Trạng thái popup thành công khi chuyển từ Đổi mật khẩu sang (Bảng 127)
   const [successModalMessage, setSuccessModalMessage] = useState<string | null>(
@@ -54,7 +57,8 @@ export const LoginPage: React.FC = () => {
       } else if (apiErr.field === "mat_khau" || apiErr.field === "password") {
         setPasswordError(true);
       } else {
-        // Đăng nhập không thành công
+        // Đăng nhập không thành công hoặc lỗi kết nối máy chủ
+        setLoginErrorMessage(apiErr.message || "Đăng nhập không thành công!");
         setLoginFailedModal(true);
       }
     } finally {
@@ -183,7 +187,9 @@ export const LoginPage: React.FC = () => {
       <ModalConfirm
         isOpen={loginFailedModal}
         type="error"
-        message="Đăng nhập không thành công!"
+        message={loginErrorMessage}
+        cardClassName="w-[320px] max-w-[90%]"
+        textClassName="whitespace-nowrap"
         onClose={() => setLoginFailedModal(false)}
       />
 

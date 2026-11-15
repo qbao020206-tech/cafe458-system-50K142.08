@@ -357,8 +357,8 @@ export const EditDishPage: React.FC = () => {
                 onClick={() => setDishStatus("Hiển thị")}
                 className={`h-[48px] rounded-[14px] font-bold text-[15px] flex items-center justify-center cursor-pointer transition-all border ${
                   dishStatus === "Hiển thị"
-                    ? "bg-[#D1EAE2] border-[#1E5642] text-[#1E5642]"
-                    : "bg-white border-[#CCCCCC] text-[#666666]"
+                    ? "bg-[#2F5D50] border-[#2F5D50] text-white shadow-sm"
+                    : "bg-white border-[#CCCCCC] text-[#22201C] hover:bg-[#FAF6EE]"
                 }`}
               >
                 Hiển thị
@@ -369,8 +369,8 @@ export const EditDishPage: React.FC = () => {
                 onClick={() => setDishStatus("Ẩn")}
                 className={`h-[48px] rounded-[14px] font-bold text-[15px] flex items-center justify-center cursor-pointer transition-all border ${
                   dishStatus === "Ẩn"
-                    ? "bg-[#FBEBD3] border-[#B45309] text-[#B45309]"
-                    : "bg-white border-[#CCCCCC] text-[#666666]"
+                    ? "bg-[#2F5D50] border-[#2F5D50] text-white shadow-sm"
+                    : "bg-white border-[#CCCCCC] text-[#22201C] hover:bg-[#FAF6EE]"
                 }`}
               >
                 Ẩn

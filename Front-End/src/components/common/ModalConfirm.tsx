@@ -6,6 +6,8 @@ interface ModalConfirmProps {
   message?: string | null;
   onClose?: () => void;
   position?: "center" | "top";
+  cardClassName?: string;
+  textClassName?: string;
 }
 
 export const ModalConfirm: React.FC<ModalConfirmProps> = ({
@@ -14,21 +16,28 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
   message,
   onClose,
   position = "center",
+  cardClassName,
+  textClassName,
 }) => {
   if (!isOpen || !message) return null;
+
+  const defaultTextClass =
+    !message.includes("\n") && message.length <= 32 ? "whitespace-nowrap" : "";
 
   return (
     <div
       onClick={onClose}
       className={`fixed inset-0 z-50 flex ${
         position === "top" ? "items-start pt-[135px]" : "items-center"
-      } justify-center bg-black/40 px-6 ${
+      } justify-center bg-black/40 px-4 ${
         onClose ? "cursor-pointer" : ""
       }`}
     >
       <div
         onClick={onClose ? onClose : (e) => e.stopPropagation()}
-        className="bg-white w-[280px] max-w-[85%] rounded-2xl p-5 shadow-2xl border border-black flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-150"
+        className={`bg-white w-[320px] max-w-[90%] rounded-2xl p-5 shadow-2xl border border-black flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-150 ${
+          cardClassName || ""
+        }`}
       >
         {type === "success" ? (
           <div className="w-14 h-14 rounded-full border-2 border-[#1E5642] flex items-center justify-center mb-3">
@@ -72,7 +81,11 @@ export const ModalConfirm: React.FC<ModalConfirmProps> = ({
           </svg>
         )}
 
-        <p className="font-bold text-[#1A1A1A] text-[16px] leading-snug whitespace-pre-line">
+        <p
+          className={`font-bold text-[#1A1A1A] text-[16px] leading-snug whitespace-pre-line ${
+            textClassName || defaultTextClass
+          }`}
+        >
           {message}
         </p>
       </div>

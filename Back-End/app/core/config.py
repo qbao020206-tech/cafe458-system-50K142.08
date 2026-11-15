@@ -6,8 +6,16 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_ENV_FILE = _BACKEND_DIR / ".env"
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=(".env", str(_ENV_FILE)),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     database_url: SecretStr = SecretStr(
         "postgresql+asyncpg://postgres:postgres@localhost:5432/cafe458"
