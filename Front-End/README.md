@@ -1,228 +1,199 @@
-# CÀ PHÊ 458 - GIAO DIỆN FRONT-END (WEB APP)
+# 📱 CÀ PHÊ 458 — GIAO DIỆN FRONT-END (WEB APP)
 
-Hệ thống giao diện người dùng (Front-End) cho Hệ thống Quản lý và Gọi món tại bàn bằng mã QR của quán **Cà phê 458**. Ứng dụng phục vụ hai nhóm đối tượng chính: **Khách hàng** (gọi món qua mã QR tại bàn) và **Chủ quán / Quản trị viên** (quản lý đơn hàng, thực đơn, sơ đồ bàn, doanh thu, tài khoản).
+Ứng dụng web giao diện người dùng (Front-End) cho Hệ thống Quản lý và Gọi món tại bàn bằng mã QR của quán **Cà phê 458** (458 Trưng Nữ Vương, Hải Châu, Đà Nẵng).
+
+Hệ thống phục vụ hai nhóm đối tượng người dùng độc lập:
+1. **Khách hàng:** Quét mã QR tại bàn bằng điện thoại để xem menu, chọn món, ghi chú và thanh toán tiện lợi (Chuyển khoản VietQR hoặc Tiền mặt).
+2. **Chủ quán / Quản trị viên:** Quản lý danh sách đơn hàng nhận tức thì, xác nhận thanh toán, chỉnh sửa menu món, cấu hình sơ đồ bàn và theo dõi doanh thu trực quan.
 
 ---
 
-## 📱 Điểm nổi bật & Quy chuẩn thiết kế
+## 🌐 1. ĐƯỜNG DẪN TRỰC TUYẾN (PRODUCTION LINKS)
 
-* **Thiết kế Mobile-First:** Tối ưu hóa cho màn hình di động chuẩn **390px** (iPhone 14 / Web Mobile tiêu chuẩn), căn giữa màn hình với nền kem ấm áp.
-* **Đồng bộ nhận diện thương hiệu:**
-  * Màu chủ đạo (Primary Red): `#D1342C`
+Ứng dụng Front-End được biên dịch tối ưu và triển khai phân phối toàn cầu qua mạng CDN của **Vercel**:
+
+* **Trang chủ hệ thống:** [https://cafe458-system-50-k142-08.vercel.app](https://cafe458-system-50-k142-08.vercel.app)
+* **Giao diện Khách hàng gọi món (Demo QR Bàn 03):** [https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban03)
+* **Giao diện Khách hàng gọi món (Demo QR Bàn 01):** [https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban01](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban01)
+* **Giao diện Khách hàng gọi món (Demo QR Bàn 05):** [https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban05](https://cafe458-system-50-k142-08.vercel.app/menu?qr=ban05)
+* **Giao diện Đăng nhập Quản trị Chủ quán:** [https://cafe458-system-50-k142-08.vercel.app/login](https://cafe458-system-50-k142-08.vercel.app/login)
+* **Bảng điều khiển Trang chủ Quản trị:** [https://cafe458-system-50-k142-08.vercel.app/admin](https://cafe458-system-50-k142-08.vercel.app/admin)
+
+---
+
+## 🔑 2. TÀI KHOẢN ĐĂNG NHẬP VÀ THANH TOÁN
+
+### 2.1. Tài khoản Đăng nhập Quản trị Chủ quán (`/login`)
+
+| Môi trường | Tên đăng nhập | Mật khẩu | Ghi chú |
+| :--- | :---: | :---: | :--- |
+| **Hệ thống Online (Production)** | `admin_cafe458` | `MatKhauChuQuan458!` | **Tài khoản Chủ quán chính thức** |
+| **Kiểm thử Online (Production)** | `admin` | `Admin@123456` | Tài khoản phụ kiểm thử |
+| **Chế độ Mock / Offline** | `chuquan458` | `123456` | Dùng khi chạy Front-End độc lập không mở API |
+
+### 2.2. Thông tin Chuyển khoản của Quán (VietQR)
+Hệ thống tự động hiển thị mã QR VietQR NAPAS 247 chính xác khi khách chọn chuyển khoản:
+* **Ngân hàng:** `VPBank` (Mã BIN: `970432`)
+* **Số tài khoản:** `616108751`
+* **Tên thụ hưởng:** `HKD CA PHE 458`
+* **Nội dung:** Tự động sinh `Bàn {Số_bàn}`
+
+---
+
+## 🎨 3. QUY CHUẨN THIẾT KẾ & ĐẶC TÍNH NỔI BẬT
+
+* **Chuẩn Mobile-First 390px:** Được tối ưu hóa cho màn hình điện thoại thông minh (iPhone 14/15), tự động căn giữa trang với nền ấm dịu mắt trên màn hình máy tính để bàn.
+* **Bộ nhận diện thương hiệu chuẩn Figma:**
+  * Đỏ thương hiệu (Primary Red): `#D1342C`
   * Nền ấm (Warm Ivory): `#FAF6EE`
-  * Nút hành động & Điểm nhấn (Action Green): `#2F5D50`
+  * Xanh hành động (Action Green): `#2F5D50`
   * Chữ & Tiêu đề (Primary Text): `#22201C`
-  * Viền & Phân cách: `#E8E0D2`
-  * Nút xóa & Cảnh báo (Red Accent): `#8A2424`
-* **Phông chữ chuẩn:** `"Be Vietnam Pro"` trên toàn bộ các thành phần giao diện.
-* **Chế độ hoạt động kép (Dual Mode):**
-  * Tích hợp Axios kết nối trực tiếp với Back-End API (`http://localhost:8000/api/v1`).
-  * Tích hợp sẵn Mock Data & Storage cục bộ (SessionStorage, LocalStorage), cho phép khởi chạy, tương tác và kiểm thử mượt mà **100% 16 màn hình** ngay cả khi chưa bật Back-End.
+  * Đường viền (Border): `#E8E0D2`
+  * Cảnh báo & Xóa (Danger Red): `#8A2424`
+* **Phông chữ:** `"Be Vietnam Pro"` trên toàn bộ thành phần giao diện.
+* **Cơ chế hoạt động kép (Dual Mode):**
+  * Tích hợp Axios kết nối trực tiếp với Back-End API (`https://cafe458.onrender.com/api/v1` hoặc `http://localhost:8000/api/v1`).
+  * Tích hợp sẵn Mock Data trong trường hợp offline, giúp kiểm thử trọn vẹn cả 16 màn hình mà không bị gián đoạn.
+* **Chuông báo đơn hàng thời gian thực:** Quản trị viên tự động nhận thông báo âm thanh và đếm số đơn chưa xác nhận theo chu kỳ polling 5 giây.
 
 ---
 
-## 🛠️ Công nghệ sử dụng (Tech Stack)
+## 📑 4. DANH MỤC 16 MÀN HÌNH (U1 — U16)
 
-* **Core Framework:** React 18.2, TypeScript 5.2
-* **Build Tool & Bundler:** Vite 5.1
-* **Styling:** Tailwind CSS 3.4
-* **Routing:** React Router DOM v6
-* **State & Data Management:** React Context API (`CartContext`, `AuthContext`), TanStack React Query
-* **Icons:** Custom SVG Figma chuẩn hóa kết hợp Lucide React
-
----
-
-## 📑 Danh mục 16 màn hình & Ánh xạ Use Case
-
-Hệ thống đáp ứng trọn vẹn 16 màn hình (U1 - U16) và 8 Use Cases theo tài liệu đặc tả kiến trúc:
-
-| Mã UI | Màn hình | Đối tượng | Use Case | Đường dẫn Route |
+| Mã UI | Tên màn hình | Đối tượng | Use Case | Đường dẫn Route |
 |:---:|:---|:---:|:---:|:---|
-| **U1** | Thực đơn chọn món | Khách hàng | UC 7.1, 7.2 | `/menu?qr=ban03` |
-| **U2** | Giỏ hàng & Thanh toán | Khách hàng | UC 7.2 | `/checkout` |
-| **U3** | Thanh toán Chuyển khoản | Khách hàng | UC 7.2 | `/payment-transfer` |
-| **U4** | Thanh toán Tiền mặt | Khách hàng | UC 7.2 | `/payment-cash` |
+| **U1** | Thực đơn chọn món tại bàn | Khách hàng | UC 7.1, UC 7.2 | `/menu?qr={ma_qr}` |
+| **U2** | Giỏ hàng & Chọn thanh toán | Khách hàng | UC 7.2 | `/checkout` |
+| **U3** | Thanh toán Chuyển khoản VietQR | Khách hàng | UC 7.2 | `/payment-transfer` |
+| **U4** | Thanh toán Tiền mặt tại quầy | Khách hàng | UC 7.2 | `/payment-cash` |
 | **U5** | Đăng nhập Chủ quán | Chủ quán | UC 1 | `/login` |
 | **U6** | Trang chủ Quản trị | Chủ quán | UC 1, UC 8 | `/admin` |
 | **U7** | Danh sách Đơn hàng | Chủ quán | UC 2.1, 2.2, 2.3 | `/admin/orders` |
-| **U8** | Chi tiết Đơn hàng | Chủ quán | UC 2.1, 2.2, 2.3 | `/admin/orders/:id` |
+| **U8** | Chi tiết Đơn hàng & Xác nhận tiền | Chủ quán | UC 2.1, 2.2, 2.3 | `/admin/orders/:id` |
 | **U9** | Quản lý Thực đơn (Menu) | Chủ quán | UC 3.1, 3.3 | `/admin/menu` |
-| **U10** | Thêm món mới | Chủ quán | UC 3.2 | `/admin/menu/add` |
-| **U11** | Cập nhật món | Chủ quán | UC 3.4 | `/admin/menu/edit/:id` |
+| **U10** | Thêm món ăn mới | Chủ quán | UC 3.2 | `/admin/menu/add` |
+| **U11** | Chỉnh sửa thông tin món | Chủ quán | UC 3.4 | `/admin/menu/edit/:id` |
 | **U12** | Sơ đồ & Quản lý bàn | Chủ quán | UC 4.1, 4.3, 4.4 | `/admin/tables` |
-| **U13** | Thêm bàn & Sinh mã QR | Chủ quán | UC 4.2 | `/admin/tables/add` & `/admin/tables/:id` |
+| **U13** | Thêm bàn mới & Cấp mã QR | Chủ quán | UC 4.2 | `/admin/tables/add` & `/admin/tables/:id` |
 | **U14** | Báo cáo Tổng doanh thu | Chủ quán | UC 5.1 | `/admin/revenue` |
-| **U15** | Chi tiết Doanh thu & Món | Chủ quán | UC 5.2, 5.3 | `/admin/revenue/detail` |
-| **U16** | Đổi mật khẩu | Chủ quán | UC 6 | `/admin/change-password` |
+| **U15** | Chi tiết Doanh thu & Món chạy | Chủ quán | UC 5.2, 5.3 | `/admin/revenue/detail` |
+| **U16** | Đổi mật khẩu tài khoản | Chủ quán | UC 6 | `/admin/change-password` |
 
 ---
 
-## 🚀 Hướng dẫn Cài đặt & Chạy trên Local (Setup & Run)
+## 🛠️ 5. CÔNG NGHỆ SỬ DỤNG (TECH STACK)
 
-### 1. Yêu cầu hệ thống
-* **Node.js:** Phiên bản `>= 18.0.0` (khuyến nghị Node 20 LTS).
-* **Package Manager:** `npm` (đi kèm Node.js) hoặc `yarn`, `pnpm`.
+* **Core Framework:** React 18.2, TypeScript 5.2
+* **Build Tool:** Vite 5.1
+* **Styling:** Tailwind CSS 3.4, PostCSS, Autoprefixer
+* **Routing:** React Router DOM v6
+* **State Management:** React Context API (`CartContext`, `AuthContext`), TanStack React Query
+* **HTTP Client:** Axios với Request/Response Interceptors xử lý JWT token tự động
+* **Icons:** Bộ SVG tùy biến chuẩn Figma & Lucide React
+* **Testing:** Vitest & React Testing Library
 
-### 2. Các bước cài đặt chi tiết
+---
 
-#### Bước 1: Mở Terminal và di chuyển vào thư mục Front-End
+## 📂 6. CẤU TRÚC THƯ MỤC NGUỒN (`src/`)
+
+```text
+Front-End/
+├── public/                     # Tài nguyên tĩnh (login-bg.png, favicon...)
+├── src/
+│   ├── components/             # Các thành phần tái sử dụng
+│   │   ├── admin/              # Component riêng của admin (OrderDatePickerModal...)
+│   │   ├── auth/               # Tuyến đường bảo vệ (ProtectedRoute...)
+│   │   ├── common/             # Component chung (ModalConfirm, ModalActionDialog, QrCodeCard...)
+│   │   └── layout/             # Khung sườn bố cục (AdminLayout, CustomerLayout)
+│   ├── constants/              # Hằng số (cấu hình ngân hàng, mã màu, thông báo)
+│   ├── contexts/               # Quản lý trạng thái Auth & Giỏ hàng toàn cục
+│   ├── pages/                  # Các trang màn hình
+│   │   ├── admin/              # 12 màn hình quản trị chủ quán
+│   │   └── customer/           # 4 màn hình khách hàng gọi món
+│   ├── routes/                 # Khai báo cây điều hướng AppRoutes.tsx
+│   ├── services/               # Gọi API Axios và dữ liệu giả lập (Mock)
+│   ├── types/                  # Định nghĩa kiểu dữ liệu TypeScript
+│   └── utils/                  # Hàm tiện ích (định dạng tiền tệ, xử lý ngày tháng)
+├── .env.example                # File mẫu biến môi trường
+├── package.json                # Danh mục thư viện phụ thuộc
+├── tsconfig.json               # Cấu hình TypeScript
+├── vercel.json                 # Cấu hình SPA Rewrite phục vụ deploy Vercel
+└── vite.config.ts              # Cấu hình Vite
+```
+
+---
+
+## 🚀 7. HƯỚNG DẪN CÀI ĐẶT & CHẠY TRÊN LOCAL
+
+### Bước 1: Mở Terminal tại thư mục Front-End
 ```bash
-# Từ thư mục gốc của dự án:
 cd Front-End
 ```
 
-#### Bước 2: Cài đặt các thư viện phụ thuộc (Dependencies)
+### Bước 2: Cài đặt thư viện phụ thuộc
 ```bash
 npm install
 ```
-*(Trên Windows PowerShell, nếu gặp lỗi về Script Execution Policy khi chạy lệnh `npm`, bạn có thể dùng `npm.cmd install` hoặc mở qua `cmd`).*
 
-#### Bước 3: Cấu hình biến môi trường (Tùy chọn)
-Tạo tệp `.env` từ `.env.example` nếu cần trỏ đến máy chủ Back-End khác cổng mặc định:
+### Bước 3: Cấu hình biến môi trường
+Tạo file `.env` từ file mẫu `.env.example`:
 ```bash
-# Windows Command Prompt:
+# Trên Windows:
 copy .env.example .env
 
-# Linux / MacOS:
+# Trên Linux/MacOS:
 cp .env.example .env
 ```
-Nội dung mặc định trong tệp `.env`:
+Nội dung file `.env`:
 ```env
+# URL máy chủ API Back-End:
 VITE_API_BASE_URL=http://localhost:8000/api/v1
-```
-*(Nếu Back-End chưa chạy, Front-End sẽ tự động kích hoạt chế độ Mock Service đầy đủ để bạn thử nghiệm mà không gặp lỗi kết nối).*
 
-#### Bước 4: Khởi chạy máy chủ phát triển (Development Server)
+# Hoặc trỏ trực tiếp đến máy chủ Online:
+# VITE_API_BASE_URL=https://cafe458.onrender.com/api/v1
+```
+
+### Bước 4: Khởi động máy chủ phát triển
 ```bash
 npm run dev
-```
-Hoặc trên Windows PowerShell:
-```powershell
+# Hoặc trên Windows PowerShell:
 npm.cmd run dev
 ```
-
-Sau khi chạy lệnh, Terminal sẽ hiển thị đường dẫn:
-```
-  VITE v5.1.6  ready in 350 ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: http://192.168.x.x:5173/
-  ➜  press h + enter to show help
-```
-
-Mở trình duyệt (hoặc bật chế độ Responsive Device Toolbar `F12` mô phỏng iPhone 14/15) và truy cập:
-👉 **`http://localhost:5173`**
+Trình duyệt mở tại địa chỉ: 👉 **`http://localhost:5173`**
 
 ---
 
-### 3. Các lệnh hữu ích khác
+## 📦 8. ĐÓNG GÓI & TRIỂN KHAI PRODUCTION
 
-* **Kiểm tra cú pháp TypeScript & Build thành phẩm Production:**
+* **Biên dịch mã nguồn:**
   ```bash
   npm run build
   ```
-  *(Đầu ra tạo thư mục `Front-End/dist` tối ưu nén gzip sẵn sàng triển khai).*
+  *(Toàn bộ mã nguồn TypeScript được kiểm tra kiểu nghiêm ngặt và đóng gói ra thư mục `Front-End/dist/` siêu nhẹ).*
 
-* **Chạy thử bản Build Production (Preview):**
+* **Xem trước bản Build (Preview):**
   ```bash
   npm run preview
   ```
 
----
-
-## 🔑 Dữ liệu Thử nghiệm (Demo Credentials)
-
-### 1. Phân hệ Khách hàng (Quét mã QR tại bàn)
-Truy cập trực tiếp với tham số bàn:
-* **Bàn 03:** `http://localhost:5173/menu?qr=ban03`
-* **Bàn 01:** `http://localhost:5173/menu?qr=ban01`
-* **Bàn 05:** `http://localhost:5173/menu?qr=ban05`
-* **Thử mã QR hỏng / bàn không tồn tại:** `http://localhost:5173/menu?qr=invalid`
-
-### 2. Thông tin Chuyển khoản của Quán (VietQR)
-Khi khách chọn phương thức *"Chuyển khoản"*, hệ thống tự động tạo mã QR VietQR NAPAS 247 chính xác:
-* **Ngân hàng:** `VPBank` (Ngân hàng TMCP Việt Nam Thịnh Vượng)
-* **Số tài khoản:** `616108751`
-* **Chủ tài khoản:** `HKD CA PHE 458`
-* **Nội dung chuyển khoản:** Tự động sinh `Bàn XX`
-* **Số tiền:** Tự động khớp tổng giá trị giỏ hàng
-
-### 3. Phân hệ Chủ quán (Đăng nhập quản trị)
-Truy cập: `http://localhost:5173/login`
-* **Tên đăng nhập:** `chuquan458`
-* **Mật khẩu ban đầu:** `123456`
-*(Sau khi vào hệ thống, bạn có thể bấm Avatar "C" -> chọn "Đổi mật khẩu" để đổi sang mật khẩu mới. Mật khẩu mới sẽ được ghi nhớ trực tiếp).*
-
----
-
-## 📂 Cấu trúc thư mục nguồn (`Front-End/src`)
-
-```
-Front-End/src/
-├── components/                 # Các thành phần UI dùng chung
-│   ├── admin/
-│   │   └── OrderDatePickerModal.tsx # Bộ chọn ngày lọc đơn theo lịch
-│   ├── auth/
-│   │   └── ProtectedRoute.tsx  # Bảo vệ tuyến đường bắt buộc đăng nhập
-│   ├── common/
-│   │   ├── CoffeeCupIcon.tsx   # Icon ly cà phê thương hiệu
-│   │   ├── EmptyClipboardIcon.tsx # Icon trạng thái danh sách rỗng
-│   │   ├── ModalActionDialog.tsx  # Hộp thoại xác nhận 2 nút (Hủy/Xóa, Không/Có)
-│   │   ├── ModalConfirm.tsx    # Popup thông báo (Tích xanh thành công / Capsule cảnh báo)
-│   │   └── QrCodeCard.tsx      # Bộ sinh và kết xuất mã QR bàn để tải ảnh PNG
-│   └── layout/
-│       ├── AdminLayout.tsx     # Layout chuẩn của Chủ quán (Header, Tab bar 5 tab, Dropdown)
-│       └── CustomerLayout.tsx  # Layout chuẩn của Khách hàng
-├── constants/                  # Hằng số cấu hình hệ thống
-│   ├── bank.ts                 # Cấu hình tài khoản ngân hàng VPBank của quán
-│   ├── colors.ts               # Bảng màu thiết kế chuẩn Figma
-│   └── messages.ts             # Các chuỗi thông báo nghiệp vụ
-├── contexts/                   # Quản lý trạng thái toàn cục (State Context)
-│   ├── AuthContext.tsx         # Phiên đăng nhập, token, quyền truy cập của chủ quán
-│   └── CartContext.tsx         # Giỏ hàng, số bàn, ghi chú, phương thức thanh toán
-├── pages/                      # Các trang màn hình giao diện
-│   ├── admin/
-│   │   ├── AddDishPage.tsx     # U10: Thêm món mới
-│   │   ├── AddTablePage.tsx    # U13: Thêm bàn & cấp mã QR
-│   │   ├── ChangePasswordPage.tsx # U16: Đổi mật khẩu
-│   │   ├── EditDishPage.tsx    # U11: Cập nhật thông tin món
-│   │   ├── HomePage.tsx        # U6: Trang chủ Admin
-│   │   ├── LoginPage.tsx       # U5: Đăng nhập
-│   │   ├── MenuListPage.tsx    # U9: Danh sách thực đơn của quán
-│   │   ├── OrderDetailPage.tsx # U8: Chi tiết đơn hàng & xác nhận tiền
-│   │   ├── OrderListPage.tsx   # U7: Quản lý danh sách đơn hàng
-│   │   ├── RevenueDetailPage.tsx # U15: Chi tiết doanh thu theo kỳ & món bán chạy
-│   │   ├── RevenueSummaryPage.tsx # U14: Báo cáo tổng doanh thu
-│   │   ├── TableDetailPage.tsx # Chi tiết bàn, xác nhận bàn trống
-│   │   └── TableListPage.tsx   # U12: Sơ đồ bàn
-│   └── customer/
-│       ├── CheckoutPage.tsx    # U2: Giỏ hàng, ghi chú, chọn thanh toán
-│       ├── MenuPage.tsx        # U1: Thực đơn khách quét QR
-│       ├── PaymentCashPage.tsx # U4: Thanh toán tiền mặt
-│       └── PaymentTransferPage.tsx # U3: Thanh toán chuyển khoản VietQR
-├── routes/
-│   └── AppRoutes.tsx           # Khai báo cây điều hướng toàn hệ thống
-├── services/                   # Tầng gọi API & Mock Service offline
-│   ├── adminMenuService.ts     # Thao tác dữ liệu Menu admin
-│   ├── adminOrderService.ts    # Thao tác dữ liệu đơn hàng
-│   ├── api.ts                  # Axios Client instance
-│   ├── authService.ts          # Xác thực, đăng nhập, đổi mật khẩu
-│   ├── menuService.ts          # Lấy thực đơn cho khách quét QR
-│   ├── orderService.ts         # Tạo đơn từ khách hàng
-│   ├── revenueService.ts       # Báo cáo doanh thu và bán hàng
-│   └── tableService.ts         # Sơ đồ bàn, tạo QR và trạng thái bàn
-├── types/                      # Định nghĩa kiểu dữ liệu TypeScript
-└── utils/
-    └── formatCurrency.ts       # Định dạng tiền tệ VNĐ (ví dụ: 30.000 đ)
-```
-
----
-
-## 🛡️ Kiểm tra chất lượng & Tiêu chuẩn đóng gói
-
-* Hệ thống được kiểm tra biên dịch nghiêm ngặt bằng TypeScript Compiler:
-  ```bash
-  npm run build
-  # Kết quả: tsc && vite build hoàn tất thành công 100% với 0 lỗi cú pháp / kiểu dữ liệu.
+* **Cấu hình Rewrite Vercel (`vercel.json`):**
+  Để tránh lỗi `404 Not Found` khi người dùng F5 tải lại các đường dẫn sâu (`/menu?qr=...`, `/admin/orders`, `/login`), dự án đã trang bị file `vercel.json`:
+  ```json
+  {
+    "rewrites": [
+      { "source": "/(.*)", "destination": "/index.html" }
+    ]
+  }
   ```
-* Mọi hành động xóa (xóa món, xóa bàn, xóa đơn) đều tuân theo nghiệp vụ xóa mềm (Soft Delete - đánh dấu trạng thái) theo đúng quy định phân tích thiết kế hệ thống.
+
+---
+
+## 🧪 9. CHẠY KIỂM THỬ GIAO DIỆN
+
+Chạy bộ kiểm thử tự động với Vitest:
+```bash
+npm test
+# Hoặc:
+npx vitest run
+```
+Kết quả kiểm thử kiểm tra toàn bộ luồng đăng nhập, chọn món, thanh toán VietQR và các modal xác nhận trạng thái.

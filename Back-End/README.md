@@ -1,63 +1,249 @@
-# Cafe 458 — Back-End
+# ☕ CÀ PHÊ 458 — BACK-END API SERVICE
 
-API backend for the Cafe 458 ordering and shop-management system.
+Dịch vụ máy chủ API Back-End cho Hệ thống Bán hàng và Quản lý quán **Cà phê 458** (458 Trưng Nữ Vương, Đà Nẵng). Hệ thống phục vụ xử lý luồng đặt món tự động qua mã QR tại bàn, quản lý đơn hàng theo thời gian thực, quản lý thực đơn, sơ đồ bàn, đồng bộ ảnh món lên Cloud Storage và sinh mã chuyển khoản ngân hàng chuẩn quốc gia **VietQR**.
 
-## Stack
+---
 
-- Python 3.12+, FastAPI and Pydantic
-- PostgreSQL on Supabase
-- SQLAlchemy 2.x async ORM with `asyncpg`
-- Alembic migrations
-- API routes under `/api/v1`
+## 🌐 1. ĐƯỜNG DẪN MÁY CHỦ TRỰC TUYẾN (PRODUCTION)
 
-## Local setup
+Dịch vụ Back-End được đóng gói dưới dạng Docker container và triển khai liên tục trên nền tảng **Render**:
 
-Use `uv` from the `Back-End` directory:
+* **Máy chủ API gốc (Base URL):** [https://cafe458.onrender.com](https://cafe458.onrender.com)
+* **Tài liệu kiểm thử Swagger UI:** [https://cafe458.onrender.com/docs](https://cafe458.onrender.com/docs)
+* **Tài liệu kiểm thử ReDoc:** [https://cafe458.onrender.com/redoc](https://cafe458.onrender.com/redoc)
+* **Kiểm tra trạng thái máy chủ (Health Check):** [https://cafe458.onrender.com/api/v1/health](https://cafe458.onrender.com/api/v1/health)
 
-1. Install the pinned Python version if needed: `uv python install`.
-2. Create/update `.venv` and install dependencies from `uv.lock`: `uv sync`.
-3. Use the supplied `Back-End/.env` for this checkout, or copy `.env.example` to `.env` and fill the required values for another environment. Keep `.env` local; it is ignored by Git.
-4. Start the API with `uv run uvicorn app.main:app --reload`.
-5. Visit `/docs` for OpenAPI documentation and `/api/v1/health` for the process health check.
+---
 
-Add or remove dependencies with `uv add <package>` / `uv remove <package>`. Commit both `pyproject.toml` and `uv.lock` so the team resolves the same dependency versions.
+## 🔑 2. TÀI KHOẢN VÀ XÁC THỰC QUẢN TRỊ (CREDENTIALS)
 
-The Supabase Direct Connection uses IPv6 by default. If the backend host is IPv4-only, set `DATABASE_URL` to the project's Session Pooler connection string on port 5432. Keep database credentials, JWT secrets, service-role keys, and payment account settings in `.env`; never expose them to the frontend. Bank variables are loaded as configuration only; payment-provider integration remains deferred.
+Toàn bộ các API trong nhóm `/admin/*` đều được bảo vệ nghiêm ngặt bằng cơ chế **Bearer Token (JWT)**. Mật khẩu được mã hóa an toàn bằng thuật toán `bcrypt`.
 
-## Domain model and current scope
+| Tên đăng nhập (`ten_dang_nhap`) | Mật khẩu ban đầu (`mat_khau`) | Vai trò / Mục đích |
+| :---: | :---: | :--- |
+| **`admin_cafe458`** | `MatKhauChuQuan458!` | **Tài khoản Chủ quán chính thức** — Quản trị toàn bộ đơn hàng, menu, bàn và báo cáo doanh thu |
+| **`admin`** | `Admin@123456` | **Tài khoản Quản trị viên phụ** — Phục vụ kiểm thử API tự động |
 
-Code is grouped by business capability, so each module owns its models, API schemas, routes, and services as that capability is implemented:
+> 💡 **Khởi tạo tài khoản:** Chạy lệnh `python scripts/seed_owner.py` để tự động tạo mới hoặc cập nhật tài khoản chủ quán ban đầu vào bảng `chu_quan`.
 
-```text
-app/
-├── core/             # Shared settings and application errors
-├── infrastructure/   # SQLAlchemy base, session factory, shared DB types
-├── modules/
-│   ├── auth/          # UC_1, UC_6, UC_8: owner account and session
-│   ├── menu/          # UC_3.1–3.4 and UC_7.1: menu and recommendations
-│   ├── orders/        # UC_2.1–2.3 and UC_7.2: order/payment lifecycle
-│   ├── sales/         # UC_5.1–5.3: revenue and sales summaries
-│   └── tables/        # UC_4.1–4.4: table state and QR identity
-└── system/            # Health and process-level endpoints
+---
+
+## 🛠️ 3. CÔNG NGHỆ SỬ DỤNG (TECH STACK)
+
+* **Ngôn ngữ & Framework:** Python `3.12+`, FastAPI (Kiến trúc bất đồng bộ Async/Await hoàn toàn)
+* **Xác thực dữ liệu:** Pydantic v2 & Pydantic-Settings
+* **ORM & Database Driver:** SQLAlchemy 2.0 Async kết hợp `asyncpg`
+* **Cơ sở dữ liệu:** PostgreSQL 15+ trên nền tảng Supabase (Hỗ trợ Row Level Security - RLS)
+* **Lưu trữ đám mây:** Supabase Object Storage (Bucket công khai `menu-images`)
+* **Quản lý Migration:** Alembic
+* **Bảo mật & Mã hóa:** `bcrypt` (băm mật khẩu), `PyJWT` (cấp phát và kiểm tra JWT token)
+* **Thanh toán VietQR:** Thư viện `qrcode[pil]` sinh chuỗi payload EMVCo và render mã QR dạng Base64 PNG trực tiếp trong bộ nhớ RAM
+* **Công cụ quản lý gói:** `uv` (tương thích hoàn toàn với `pip` và `requirements.txt`)
+
+---
+
+## 🗄️ 4. THIẾT KẾ CƠ SỞ DỮ LIỆU (5 BẢNG LÕI)
+
+Cơ sở dữ liệu được chuẩn hóa và quản lý bởi SQLAlchemy Models trong `app/infrastructure/model_registry.py`:
+
+```
+chu_quan (Chủ quán)
+ ├── ten_dang_nhap (PK, VARCHAR 50)
+ └── mat_khau (VARCHAR 100, bcrypt hash)
+
+ban (Bàn)
+ ├── ma_ban (PK, INT)
+ ├── ten_dang_nhap (FK -> chu_quan.ten_dang_nhap)
+ ├── so_ban (VARCHAR 20, Ràng buộc UNIQUE cho các bàn chưa xóa)
+ ├── ma_qr (VARCHAR 100, UNIQUE)
+ ├── trang_thai (ENUM: 'Trống', 'Đang phục vụ')
+ └── da_xoa (BOOLEAN, mặc định False - Xóa mềm)
+
+mon (Món)
+ ├── ma_mon (PK, INT)
+ ├── ten_mon (VARCHAR 100, Ràng buộc UNIQUE không phân biệt hoa thường cho món chưa xóa)
+ ├── gia_ban (NUMERIC 12,2 > 0)
+ ├── hinh_anh (TEXT, URL ảnh từ Supabase Storage)
+ ├── trang_thai (ENUM: 'Hiển thị', 'Ẩn')
+ └── da_xoa (BOOLEAN, mặc định False - Xóa mềm)
+
+don_hang (Đơn hàng)
+ ├── ma_don_hang (PK, INT)
+ ├── ma_ban (FK -> ban.ma_ban)
+ ├── phuong_thuc_thanh_toan (ENUM: 'Chuyển khoản', 'Tiền mặt')
+ ├── trang_thai (ENUM: 'Chưa xác nhận thanh toán', 'Đã xác nhận thanh toán')
+ ├── tong_tien (NUMERIC 12,2 >= 0)
+ ├── thoi_gian_dat (TIMESTAMP WITH TIME ZONE)
+ ├── thoi_gian_giao_dich (TIMESTAMP WITH TIME ZONE, chỉ có khi Đã xác nhận)
+ ├── ghi_chu (TEXT)
+ └── da_xoa (BOOLEAN, mặc định False - Xóa mềm)
+
+chi_tiet_don (Chi tiết đơn)
+ ├── ma_don_hang (PK, FK -> don_hang.ma_don_hang)
+ ├── ma_mon (PK, FK -> mon.ma_mon)
+ ├── ten_mon (VARCHAR 100, Lưu lại tên món tại thời điểm đặt)
+ ├── gia (NUMERIC 12,2 > 0, Lưu lại đơn giá tại thời điểm đặt)
+ └── so_luong (INT > 0)
 ```
 
-The five SQLAlchemy models are owned by their domains and registered in `infrastructure/model_registry.py`: `chu_quan`, `ban`, `mon`, `don_hang`, and `chi_tiet_don`. Table, menu, and order records use soft deletion. Order items snapshot the item name and price. The order-item composite primary key remains `(ma_don_hang, ma_mon)` as specified.
+---
 
-The customer-order workflow checks the table QR and visible menu items, calculates prices on the server, saves item snapshots, and creates the order and serving-table state in one transaction. Automatic bank transaction matching remains deferred; the preview can prepare a VietQR image URL, and the owner confirms receipt through the order API. Marking a table empty (`PATCH /admin/tables/{id}/empty` - UC_4.4) transitions its status to 'Trống' once all orders are resolved.
+## 📂 5. CẤU TRÚC THƯ MỤC BACK-END
 
-The owner signs in through `POST /api/v1/auth/login` using `ten_dang_nhap` and `mat_khau`; credentials are checked against the bcrypt hash in `chu_quan`. The returned bearer token is required for owner endpoints. Recommendations are fixed to a maximum of 3 top-selling dishes in the last 30 days based on paid quantity (QĐ-18).
+```text
+Back-End/
+├── alembic/                  # Các file di chuyển lược đồ CSDL
+│   └── versions/             # File migration (0001_initial_schema.py...)
+├── app/
+│   ├── core/                 # Cấu hình hệ thống (config.py, errors.py)
+│   ├── infrastructure/       # Kết nối CSDL (database.py, model_registry.py)
+│   ├── modules/              # Phân chia nghiệp vụ theo Domain-Driven
+│   │   ├── auth/             # Xác thực chủ quán (login, password, JWT)
+│   │   ├── menu/             # Quản lý thực đơn & upload ảnh món ăn
+│   │   ├── orders/           # Tạo đơn, duyệt đơn, thông báo đơn mới, VietQR
+│   │   ├── sales/            # Báo cáo doanh thu & món bán chạy nhất
+│   │   └── tables/           # Sơ đồ bàn, tạo mã QR, dọn bàn trống
+│   ├── system/               # Endpoint kiểm tra trạng thái (/api/v1/health)
+│   └── main.py               # Điểm khởi chạy FastAPI & thiết lập CORS
+├── scripts/                  # Kịch bản dòng lệnh hỗ trợ
+│   └── seed_owner.py         # Khởi tạo tài khoản chủ quán vào database
+├── tests/                    # Toàn bộ test suite kiểm thử tự động
+├── .env.example              # Mẫu biến môi trường
+├── Dockerfile                # Cấu hình container chạy máy chủ Production
+├── pyproject.toml            # Khai báo cấu hình dự án Python
+├── requirements.txt          # Danh mục thư viện cố định
+└── alembic.ini               # Cấu hình Alembic
+```
 
-## API coverage
+---
 
-The API catalog is implemented under `/api/v1`:
+## ⚙️ 6. CẤU HÌNH BIẾN MÔI TRƯỜNG (`.env`)
 
-- Auth: `POST /auth/login`, `POST /auth/logout`, `PUT /auth/password`.
-- Customer: `GET /customer/menu?qr=...` (or `?qr_token=...`), `POST /customer/orders/preview`, `POST /customer/orders`.
-- Orders: `GET /admin/orders?date=YYYY-MM-DD`, `GET /admin/orders/{id}`, `PATCH /admin/orders/{id}/confirm-payment`, `DELETE /admin/orders/{id}`, and `GET /admin/notifications/unread-orders`.
-- Menu and media: `GET|POST /admin/menu`, `PUT|DELETE /admin/menu/{id}`, and `POST /admin/menu/upload-image`.
-- Tables: `GET|POST /admin/tables`, `GET /admin/tables/{id}/qr-image`, `DELETE /admin/tables/{id}`, and `PATCH /admin/tables/{id}/empty`.
-- Reports: `GET /admin/reports/revenue` and `GET /admin/reports/details`.
+Tạo file `Back-End/.env` dựa trên file mẫu `.env.example`:
 
-All owner routes require a bearer token. Marking a table empty (`PATCH /admin/tables/{id}/empty`) validates that no active unpaid orders (`Chưa xác nhận thanh toán`) exist on the table; if any remain, it returns HTTP 409 (`TABLE_HAS_UNRESOLVED_ORDERS`) with message "Có lỗi xảy ra, vui lòng thử lại!", leaving the table in 'Đang phục vụ'. Once all orders are confirmed or soft-deleted, it transitions the table to 'Trống' and returns message "Đã đưa bàn về trạng thái Trống". Soft-deleting an order sets `da_xoa = True` for both unpaid and paid orders without modifying table status (BR-UC2-09). Uploaded menu images use the configured Supabase Storage bucket.
+```env
+# Kết nối PostgreSQL Supabase (Khuyến nghị dùng IPv4 Session Pooler cổng 5432)
+DATABASE_URL=postgresql+asyncpg://postgres.xxxx:yyyy@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres
 
-Revenue reports include only paid, non-deleted orders and group revenue by payment-confirmation time in Vietnam time (UTC+7). Recommendations are derived from sales data, not a menu flag.
+# Cấu hình Supabase Storage lưu ảnh món ăn
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxxx
+SUPABASE_STORAGE_BUCKET=menu-images
+
+# Bảo mật JWT
+JWT_SECRET=cafe458_secret_jwt_key_danang_2026_super_safe
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_HOURS=12
+
+# Tài khoản khởi tạo ban đầu
+OWNER_USERNAME=admin_cafe458
+OWNER_PASSWORD=MatKhauChuQuan458!
+
+# Cấu hình tài khoản ngân hàng VPBank (VietQR NAPAS 247)
+BANK_BIN=970432
+BANK_NAME=VPBank
+BANK_ACCOUNT_NO=616108751
+BANK_ACCOUNT_NAME=HKD CA PHE 458
+
+# Cấu hình URL Front-End (Dùng để cấp mã QR và mở CORS)
+FRONTEND_BASE_URL=https://cafe458-system-50-k142-08.vercel.app,http://localhost:5173
+```
+
+---
+
+## 🚀 7. HƯỚNG DẪN CÀI ĐẶT & CHẠY TRÊN LOCAL
+
+### Cách 1: Sử dụng công cụ `uv` (Khuyến nghị)
+```bash
+# 1. Cài đặt Python và đồng bộ thư viện
+uv python install 3.12
+uv sync
+
+# 2. Cập nhật lược đồ CSDL và tạo tài khoản chủ quán
+uv run alembic upgrade head
+uv run python scripts/seed_owner.py
+
+# 3. Khởi chạy máy chủ API
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Cách 2: Sử dụng `pip` và `venv` truyền thống
+```bash
+# 1. Tạo môi trường ảo Python
+python -m venv .venv
+
+# 2. Kích hoạt môi trường ảo
+# Trên Windows:
+.venv\Scripts\activate
+# Trên Linux/MacOS:
+source .venv/bin/activate
+
+# 3. Cài đặt các gói thư viện
+pip install -r requirements.txt
+
+# 4. Chạy migration và seed dữ liệu
+alembic upgrade head
+python scripts/seed_owner.py
+
+# 5. Khởi động máy chủ API
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+---
+
+## 🐳 8. TRIỂN KHAI VỚI DOCKER
+
+Dự án có sẵn `Dockerfile` tối ưu dựa trên image `python:3.12-slim`:
+
+```bash
+# Xây dựng Docker Image
+docker build -t cafe458-backend .
+
+# Khởi chạy Container
+docker run -d -p 8000:8000 --env-file .env --name cafe458-api cafe458-backend
+```
+
+---
+
+## 📑 9. DANH MỤC API ENDPOINTS (`/api/v1`)
+
+| Nhóm chức năng | Phương thức | Đường dẫn Endpoint | Yêu cầu Bearer Token | Mô tả nghiệp vụ |
+| :--- | :---: | :--- | :---: | :--- |
+| **Hệ thống** | `GET` | `/api/v1/health` | Không | Kiểm tra trạng thái máy chủ (`{"status": "ok"}`) |
+| **Xác thực** | `POST` | `/api/v1/auth/login` | Không | Đăng nhập chủ quán, trả về Bearer JWT token |
+| | `POST` | `/api/v1/auth/logout` | Có | Đăng xuất chủ quán |
+| | `PUT` | `/api/v1/auth/password` | Có | Đổi mật khẩu chủ quán |
+| **Khách hàng** | `GET` | `/api/v1/customer/menu?qr={token}` | Không | Xem thực đơn hợp lệ & Top 3 món bán chạy nhất |
+| | `POST` | `/api/v1/customer/orders/preview` | Không | Xem trước đơn hàng, tính tổng tiền & tạo mã VietQR |
+| | `POST` | `/api/v1/customer/orders` | Không | Xác nhận gửi đơn, đổi bàn sang 'Đang phục vụ' |
+| **Đơn hàng** | `GET` | `/api/v1/admin/orders?date=YYYY-MM-DD` | Có | Danh sách đơn hàng theo ngày |
+| | `GET` | `/api/v1/admin/orders/{id}` | Có | Xem chi tiết đơn hàng |
+| | `PATCH` | `/api/v1/admin/orders/{id}/confirm-payment` | Có | Xác nhận đã nhận tiền (Tiền mặt hoặc Chuyển khoản) |
+| | `DELETE` | `/api/v1/admin/orders/{id}` | Có | Xóa mềm đơn hàng |
+| | `GET` | `/api/v1/admin/notifications/unread-orders` | Có | Đếm số lượng đơn chưa xác nhận (Polling thông báo) |
+| **Thực đơn** | `GET` | `/api/v1/admin/menu` | Có | Danh sách toàn bộ món ăn trong menu của quán |
+| | `POST` | `/api/v1/admin/menu` | Có | Thêm món ăn mới |
+| | `PUT` | `/api/v1/admin/menu/{id}` | Có | Cập nhật tên, giá bán, hình ảnh, trạng thái món |
+| | `DELETE` | `/api/v1/admin/menu/{id}` | Có | Xóa mềm món ăn |
+| | `POST` | `/api/v1/admin/menu/upload-image` | Có | Tải ảnh món ăn trực tiếp lên Supabase Storage |
+| **Bàn & QR** | `GET` | `/api/v1/admin/tables` | Có | Danh sách tất cả bàn và trạng thái hiện tại |
+| | `POST` | `/api/v1/admin/tables` | Có | Thêm bàn mới & tự động sinh mã QR |
+| | `GET` | `/api/v1/admin/tables/{id}/qr-image` | Có | Tải hình ảnh mã QR bàn để in ấn |
+| | `DELETE` | `/api/v1/admin/tables/{id}` | Có | Xóa mềm bàn ăn |
+| | `PATCH` | `/api/v1/admin/tables/{id}/empty` | Có | Đưa bàn về trạng thái 'Trống' sau khi xong ca |
+| **Báo cáo** | `GET` | `/api/v1/admin/reports/revenue` | Có | Báo cáo tổng doanh thu theo ngày / tháng / năm |
+| | `GET` | `/api/v1/admin/reports/details` | Có | Chi tiết doanh thu theo giờ và danh sách món bán chạy |
+
+---
+
+## 🧪 10. CHẠY KIỂM THỬ TỰ ĐỘNG (AUTOMATED TESTING)
+
+Chạy bộ kiểm thử tự động với `pytest`:
+
+```bash
+cd Back-End
+uv run pytest -v
+# Hoặc nếu dùng venv:
+pytest -v
+```
+Bộ kiểm thử bao quát toàn bộ các luồng nghiệp vụ cốt lõi: Đăng nhập/Đổi mật khẩu, Khách hàng đặt món, Xử lý giao dịch VietQR, Chuyển trạng thái bàn, CRUD Menu và Báo cáo doanh thu.
